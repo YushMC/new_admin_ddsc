@@ -6,4 +6,8 @@
   </UApp>
 </template>
 
-<script setup lang="ts"></script>
+<script setup lang="ts">
+definePageMeta({
+  middleware: 'global',
+});
+</script>
