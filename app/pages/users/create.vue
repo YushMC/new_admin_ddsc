@@ -177,6 +177,8 @@ const handleCancel = () => {
   router.push("/users");
 };
 
+document.title = "Crear Usuario - DDSC Admin";
+
 onBeforeMount(() => {
   const tokenDecode = decodeToken();
   if (!tokenDecode || tokenDecode.role === "uploader") {

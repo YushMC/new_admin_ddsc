@@ -8,6 +8,7 @@ interface tokenData {
   role: allRolesUser;
   logo: string;
   about_me: string;
+  contact: string;
 }
 
 interface User {
@@ -16,6 +17,8 @@ interface User {
   logo: string | null;
   role: allRolesUser;
   contact: string | null;
+  about_me: string | null;
+  is_active: boolean;
 }
 
 interface Credit {

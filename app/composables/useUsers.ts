@@ -22,11 +22,11 @@ const fetchGetUserById = async (id: number) => {
 };
 
 const fetchUploadLogo = async (file: File) => {
-  return await postFetchWithToken("USERS", "profile", file);
+  return await saveImagesToBD("USERS", "logo", "POST", file);
 };
 
 const fetchUpdateLogo = async (file: File) => {
-  return await patchFetchWithToken("USERS", "profile", file);
+  return await saveImagesToBD("USERS", "logo", "PATCH", file);
 };
 
 const fetchUpdatePassword = async (data: {
@@ -40,13 +40,19 @@ const fetchUpdateContact = async (contact: string) => {
   return await patchFetchWithToken("USERS", "contact", { contact });
 };
 
-const fetchUpdateRole = async (role: rolesNames, id: number) => {
+const fetchUpdateRole = async (id: number, role: rolesNames) => {
   return await patchFetchWithToken("USERS-ADMIN", `role/${id}`, { role });
 };
 
-const fetchRestorePassword = async (new_password: string, id: number) => {
+const fetchRestorePassword = async (id: number, new_password: string) => {
   return await patchFetchWithToken("USERS-ADMIN", `restore/password/${id}`, {
     new_password,
+  });
+};
+
+const fetchUpdateStatus = async (id: number, is_active: boolean) => {
+  return await patchFetchWithToken("USERS-ADMIN", `status/${id}`, {
+    is_active,
   });
 };
 
@@ -63,5 +69,6 @@ export const useUsers = () => {
     fetchUpdateRole,
     fetchRestorePassword,
     fetchAllUsersAdmin,
+    fetchUpdateStatus,
   };
 };

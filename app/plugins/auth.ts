@@ -18,12 +18,12 @@ export default defineNuxtPlugin((nuxtApp) => {
 
     // Caso 1: Ruta privada SIN autenticación → Redirigir a login
     if (!isUserAuthenticated && !isPublicRoute) {
-      return next("/login");
+      return router.push("/login");
     }
 
     // Caso 2: Usuario autenticado intentando acceder a login → Redirigir a dashboard
     if (isUserAuthenticated && to.path === "/login") {
-      return next("/");
+      return router.push("/");
     }
 
     // Caso 3: Permitir acceso

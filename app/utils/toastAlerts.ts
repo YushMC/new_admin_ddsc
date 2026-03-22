@@ -9,8 +9,13 @@ const useToastAlerts = () => {
     });
   };
 
+  const closeAllToasts = () => {
+    toast.clear();
+  };
+
   return {
     showToast,
+    closeAllToasts,
   };
 };
 

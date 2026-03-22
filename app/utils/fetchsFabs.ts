@@ -106,10 +106,24 @@ export const fetchWithToken = async <T = any>(
       message: response.message,
       data: response.data!,
     };
-  } catch (error) {
+  } catch (error: any) {
+    const apiError = error?.data;
+    const detail = apiError?.detail;
+
+    let message = "Error desconocido";
+
+    if (Array.isArray(detail)) {
+      message = detail.map((e: any) => e.msg).join(", ");
+    } else if (typeof detail === "string") {
+      message = detail;
+    } else if (typeof detail === "object" && detail !== null) {
+      message = detail.msg || JSON.stringify(detail);
+    } else {
+      message = error.message;
+    }
     return {
       success: false,
-      message: (error as Error).message,
+      message: message,
     };
   }
 };
@@ -160,7 +174,6 @@ export const deleteFetchWithToken = async <T = any>(
 
 export const saveImagesToBD = async (
   prefix: prefixAlloweds,
-
   endPoint: string,
   methhodFetch: methodsAlloweds,
   file: File,
