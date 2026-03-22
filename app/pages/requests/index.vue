@@ -30,8 +30,9 @@
 import type { BreadcrumbItem } from "@nuxt/ui";
 import type { TableColumn } from "@nuxt/ui";
 import type { Row } from "@tanstack/vue-table";
-const { fetchMods, fetchModsAdmin } = useMods();
-const { decodeToken } = useAuth();
+import useToastAlerts from "~/utils/toastAlerts";
+const { fetchAllModsInRevision } = useMods();
+const { showToast } = useToastAlerts();
 const UButton = resolveComponent("UButton");
 const UBadge = resolveComponent("UBadge");
 const UDropdownMenu = resolveComponent("UDropdownMenu");
@@ -141,44 +142,22 @@ function getRowItems(row: Row<ModResponse>) {
       label: "Acciones",
     },
     {
-      label: "Ver Datos Iniciales",
+      label: "Ver Datos",
       onSelect() {
-        router.push(`/mods/edit/${row.original.resource.id}`);
-
-        // toast.add({
-        //   title: "Payment ID copied to clipboard!",
-        //   color: "success",
-        //   icon: "i-lucide-circle-check",
-        // });
+        router.push(`/request/detail/${row.original.resource.id}`);
       },
     },
-    // {
-    //   type: "separator",
-    // },
-    // {
-    //   label: "View customer",
-    // },
-    // {
-    //   label: "View payment details",
-    // },
   ];
 
   return itemsData;
 }
+document.title = "Mods en Revisión - Admin DDSC";
 
 onBeforeMount(async () => {
-  document.title = "Mods - Admin DDSC";
-
-  const token = decodeToken();
-
-  if (token.role === "uploader") router.back();
-
-  const response = await fetchModsAdmin();
-
+  const response = await fetchAllModsInRevision();
+  showToast(response);
   if (response.success && response.data) {
-    mods.value = response.data.filter(
-      (item) => item.resource.required_revision === true,
-    );
+    mods.value = response.data;
   }
 });
 </script>

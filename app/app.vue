@@ -1,5 +1,5 @@
 <template>
-  <UApp>
+  <UApp :locale="es">
     <NuxtLayout>
       <NuxtPage />
     </NuxtLayout>
@@ -10,7 +10,13 @@
 import CONSTANTS from "./utils/constants";
 import useToastAlerts from "./utils/toastAlerts";
 const { closeAllToasts } = useToastAlerts();
+const { decodeToken } = useAuth();
 const route = useRoute();
+const router = useRouter();
+
+import { es } from "@nuxt/ui/locale";
+
+const token = decodeToken();
 
 watch(
   () => route.path,
@@ -18,6 +24,16 @@ watch(
     if (newValue !== oldValue) {
       window.scrollTo(0, 0);
       closeAllToasts();
+    }
+    if (
+      newValue.startsWith("/users") &&
+      newValue.startsWith("/collections") &&
+      newValue.startsWith("/genres") &&
+      newValue.startsWith("/requests")
+    ) {
+      if (token?.role === "uploader") {
+        router.push("/");
+      }
     }
   },
 );

@@ -37,6 +37,46 @@
         </UCard>
       </template>
     </UModal>
+
+    <UModal
+      v-model:open="open"
+      v-if="selectedGenre"
+      :title="`Editar al género: ${selectedGenre.resource.name}`"
+    >
+      <template #body>
+        <UCard class="flex flex-col w-full gap-5">
+          <UCard class="flex flex-col w-full gap-5" variant="soft">
+            <UFormField
+              label="Nombre del género"
+              name="name"
+              class="w-full mb-5"
+            >
+              <UInput
+                v-model="selectedGenre.resource.name"
+                class="w-full"
+                placeholder="Nombre del género"
+              />
+            </UFormField>
+            <UButton
+              @click="handleUpdateGenre"
+              color="warning"
+              icon="i-lucide-rotate-ccw"
+              >Actualizar Nombre</UButton
+            >
+          </UCard>
+          <UCard class="flex flex-col w-full gap-5 mt-5" variant="soft">
+            <USwitch
+              unchecked-icon="i-lucide-x"
+              checked-icon="i-lucide-check"
+              default-value
+              v-model="selectedGenre.info.is_active"
+              @change="handleToggleGenreActive"
+              label="¿Género Activo?"
+            />
+          </UCard>
+        </UCard>
+      </template>
+    </UModal>
   </div>
 </template>
 
@@ -47,13 +87,21 @@ import useToastAlerts from "~/utils/toastAlerts";
 
 const { showToast } = useToastAlerts();
 const { decodeToken } = useAuth();
-const { fetchAllGenres, fetchSaveGenre } = useGenres();
+const {
+  fetchAllGenres,
+  fetchSaveGenre,
+  fetchUpdateGenre,
+  fetchUpdateStatusGenre,
+} = useGenres();
 
 const UButton = resolveComponent("UButton");
 const UBadge = resolveComponent("UBadge");
 const UDropdownMenu = resolveComponent("UDropdownMenu");
 
 const data = ref<GenreResponse[]>([]);
+
+const open = ref(false);
+const selectedGenre = ref<GenreResponse | null>(null);
 
 const router = useRouter();
 const genre = ref("");
@@ -92,7 +140,7 @@ const columns: TableColumn<GenreResponse>[] = [
     accessorFn: (row) => row.info.is_active,
     header: "Estado",
     cell: ({ row }) => {
-      const isActive = Boolean(row);
+      const isActive = Boolean(row.original.info.is_active);
       return h(
         UBadge,
         {
@@ -143,7 +191,8 @@ function getRowItems(row: Row<GenreResponse>) {
     {
       label: "Editar Género",
       onSelect() {
-        router.push(`/genres/edit/${row.original.resource.id}`);
+        open.value = true;
+        selectedGenre.value = row.original;
       },
     },
   ];
@@ -156,6 +205,33 @@ const handleSaveGenre = async () => {
     genre.value = "";
     data.value.push(response.data);
   }
+};
+
+const handleUpdateGenre = async () => {
+  if (!selectedGenre.value) return;
+
+  const response = await fetchUpdateGenre(
+    selectedGenre.value.resource.id,
+    selectedGenre.value.resource.name,
+  );
+  showToast(response);
+  resetSelectedGenre();
+};
+
+const handleToggleGenreActive = async () => {
+  if (!selectedGenre.value) return;
+
+  const response = await fetchUpdateStatusGenre(
+    selectedGenre.value.resource.id,
+    selectedGenre.value.info.is_active,
+  );
+  showToast(response);
+  resetSelectedGenre();
+};
+
+const resetSelectedGenre = () => {
+  selectedGenre.value = null;
+  open.value = false;
 };
 
 document.title = "Géneros - DDSC Admin";

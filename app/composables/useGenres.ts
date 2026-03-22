@@ -6,10 +6,22 @@ const fetchSaveGenre = async (name: string) => {
   return await postFetchWithToken<GenreResponse>("GENRES", "", { name });
 };
 
+const fetchUpdateGenre = async (id: number, name: string) => {
+  return await putFetchWithToken<GenreResponse>("GENRES", `${id}`, { name });
+};
+
+const fetchUpdateStatusGenre = async (id: number, is_active: boolean) => {
+  return await patchFetchWithToken<GenreResponse>("GENRES", `status/${id}`, {
+    is_active,
+  });
+};
+
 const useGenres = () => {
   return {
     fetchAllGenres,
     fetchSaveGenre,
+    fetchUpdateGenre,
+    fetchUpdateStatusGenre,
   };
 };
 

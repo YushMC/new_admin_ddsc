@@ -31,14 +31,17 @@ import type { BreadcrumbItem } from "@nuxt/ui";
 import type { TableColumn } from "@nuxt/ui";
 import type { Row } from "@tanstack/vue-table";
 import useToastAlerts from "~/utils/toastAlerts";
+
 const { fetchMods, fetchModsAdmin } = useMods();
 const { decodeToken } = useAuth();
+const { showToast } = useToastAlerts();
+const { fetchCreateStats } = useStats();
+
 const UButton = resolveComponent("UButton");
 const UBadge = resolveComponent("UBadge");
 const UDropdownMenu = resolveComponent("UDropdownMenu");
 const router = useRouter();
 const mods = ref<ModResponse[]>([]);
-const { showToast } = useToastAlerts();
 
 const items = ref<BreadcrumbItem[]>([
   {
@@ -47,6 +50,16 @@ const items = ref<BreadcrumbItem[]>([
     to: "/mods",
   },
 ]);
+
+const token = ref<tokenData>({
+  exp: 0,
+  sub: "",
+  name: "",
+  role: "owner",
+  logo: "",
+  about_me: "",
+  contact: "",
+});
 
 const columns: TableColumn<ModResponse>[] = [
   {
@@ -146,23 +159,8 @@ function getRowItems(row: Row<ModResponse>) {
       label: "Editar Mod",
       onSelect() {
         router.push(`/mods/edit/${row.original.resource.id}`);
-
-        // toast.add({
-        //   title: "Payment ID copied to clipboard!",
-        //   color: "success",
-        //   icon: "i-lucide-circle-check",
-        // });
       },
     },
-    // {
-    //   type: "separator",
-    // },
-    // {
-    //   label: "View customer",
-    // },
-    // {
-    //   label: "View payment details",
-    // },
   ];
 
   if (
@@ -174,12 +172,6 @@ function getRowItems(row: Row<ModResponse>) {
       label: "Agregar Imagenes",
       onSelect() {
         router.push(`/mods/create/images/${row.original.resource.id}`);
-
-        // toast.add({
-        //   title: "Payment ID copied to clipboard!",
-        //   color: "success",
-        //   icon: "i-lucide-circle-check",
-        // });
       },
     });
   }
@@ -188,29 +180,45 @@ function getRowItems(row: Row<ModResponse>) {
       label: "Agregar Créditos",
       onSelect() {
         router.push(`/mods/create/credits/${row.original.resource.id}`);
-
-        // toast.add({
-        //   title: "Payment ID copied to clipboard!",
-        //   color: "success",
-        //   icon: "i-lucide-circle-check",
-        // });
+      },
+    });
+  }
+  if (row.original.info.created_by.id === Number(token.value.sub)) {
+    itemsData.push({
+      label: "Activar Estadísticas",
+      onSelect() {
+        create(row.original.resource.id);
       },
     });
   }
   return itemsData;
 }
 
+const create = async (id: number) => {
+  const response = await fetchCreateStats(id);
+  showToast(response);
+};
+
 document.title = "Mods - Admin DDSC";
 
 onBeforeMount(async () => {
-  const token = decodeToken();
+  token.value = decodeToken();
 
   const response =
-    token?.role === "uploader" ? await fetchMods() : await fetchModsAdmin();
+    token.value?.role === "uploader"
+      ? await fetchMods()
+      : await fetchModsAdmin();
 
   showToast(response);
 
   if (response.success && response.data) {
+    if (token.value?.role === "uploader") {
+      mods.value = response.data.filter(
+        (mod) => mod.info.created_by.id === Number(token.value.sub),
+      );
+      return;
+    }
+    mods.value = response.data;
     mods.value = response.data;
   }
 });

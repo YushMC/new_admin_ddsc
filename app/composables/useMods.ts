@@ -10,6 +10,8 @@ const fetchModsAdmin = async (): Promise<
     };
   }
 };
+const fetchAllModsInRevision = async () =>
+  await getFetchWithToken<ModResponse[]>("MODS-ADMIN", "revision");
 
 const fetchModByIDAdmin = async (
   id: number,
@@ -48,11 +50,16 @@ const fetchModByID = async (
   }
 };
 
+const fetchMyMods = async () =>
+  await getFetchWithToken<ModResponse[]>("MODS", "my-mods");
+
 export const useMods = () => {
   return {
     fetchMods,
     fetchModsAdmin,
     fetchModByIDAdmin,
     fetchModByID,
+    fetchMyMods,
+    fetchAllModsInRevision,
   };
 };

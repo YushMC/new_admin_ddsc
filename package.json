@@ -10,6 +10,7 @@
     "postinstall": "nuxt prepare"
   },
   "dependencies": {
+    "@internationalized/date": "^3.12.0",
     "@morev/vue-transitions": "^3.0.5",
     "@nuxt/image": "2.0.0",
     "@nuxt/ui": "^4.5.1",

@@ -5,11 +5,11 @@ type rolesNames = "editor" | "uploader";
 interface InfoDetail {
   created_at: string;
   updated_at: string;
-  created_by: string;
-  updated_by: string;
+  created_by: User;
+  updated_by: User;
   is_active: boolean;
   deleted_at?: string;
-  deleted_by?: string;
+  deleted_by?: User;
 }
 
 interface ReturnDataFromFetch<T = any> {

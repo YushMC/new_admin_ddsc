@@ -8,6 +8,9 @@ importers:
 
   .:
     dependencies:
+      '@internationalized/date':
+        specifier: ^3.12.0
+        version: 3.12.0
       '@morev/vue-transitions':
         specifier: ^3.0.5
         version: 3.0.5(magicast@0.5.2)(vue@3.5.30(typescript@5.9.3))

@@ -193,13 +193,20 @@ const items = ref<NavigationMenuItem[]>([
     label: "Mods",
     icon: "i-lucide-book-open",
     to: "/mods",
+    open: true,
+    children: [
+      {
+        label: "Agregar Mod",
+        icon: "i-lucide-book-plus",
+        to: "/mods/create",
+      },
+      {
+        label: "Estadisticas",
+        icon: "i-lucide-bar-chart-2",
+        to: "/mods/stats",
+      },
+    ],
     //badge: "4",
-  },
-
-  {
-    label: "Estadisticas",
-    icon: "i-lucide-bar-chart-2",
-    to: "/stats",
   },
 ]);
 
