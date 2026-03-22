@@ -10,8 +10,46 @@
 
     <!-- Form Card -->
     <UCard>
+      <UContainer
+        class="w-full flex items-center justify-evenly mb-5 gap-5 flex-wrap"
+      >
+        <UContainer
+          class="size-fit overflow-hidden flex jusify-center items-center p-0 m-0"
+        >
+          <UPagination
+            class="size-fit"
+            v-model:page="page"
+            :sibling-count="1"
+            :total="filteredUsers.length"
+            :items-per-page="itemsPerPage"
+            variant="ghost"
+          />
+        </UContainer>
+
+        <UFormField class="w-100 flex justify-center gap-2 flex-wrap">
+          <UInput
+            v-model="search"
+            placeholder="Buscar Usuario..."
+            class="w-50"
+            icon="i-lucide-search"
+            size="md"
+            variant="soft"
+          />
+          <USelect
+            v-model="itemsPerPage"
+            class="w-20 ml-5"
+            placeholder="Filtrar por Tipo"
+            :items="[
+              { label: '10', value: 10 },
+              { label: '20', value: 20 },
+              { label: '50', value: 50 },
+              { label: '100', value: 100 },
+            ]"
+          />
+        </UFormField>
+      </UContainer>
       <UContainer>
-        <UTable :data="data" :columns="columns" class="flex-1" />
+        <UTable :data="filteredUsers" :columns="columns" class="flex-1" />
       </UContainer>
     </UCard>
 
@@ -122,7 +160,7 @@ import type { Row } from "@tanstack/vue-table";
 import useToastAlerts from "~/utils/toastAlerts";
 
 const {
-  fetchAllUsersAdmin,
+  fetAllUsersAdminWithSkipAndLimit,
   fetchRestorePassword,
   fetchUpdateRole,
   fetchUpdateStatus,
@@ -150,9 +188,10 @@ const selectedUser = ref<User | null>(null);
 
 const data = ref<User[]>([]);
 
-const roleOptions: { role: rolesNames; label: string }[] = [
-  { role: "editor", label: "Editor" },
-  { role: "uploader", label: "Aportador" },
+const roleOptions: { role: rolesNames; label: string; disabled: boolean }[] = [
+  { role: "owner", label: "Creador", disabled: true },
+  { role: "editor", label: "Editor", disabled: false },
+  { role: "uploader", label: "Aportador", disabled: false },
 ];
 
 const columns: TableColumn<User>[] = [
@@ -182,14 +221,21 @@ const columns: TableColumn<User>[] = [
     accessorKey: "role",
     header: "Rol",
     cell: ({ row }) => {
+      const role = row.getValue("role") as rolesNames;
       const color = {
         owner: "success" as const,
         editor: "info" as const,
         uploader: "neutral" as const,
-      }[row.getValue("role") as string];
+      }[role];
 
       return h(UBadge, { class: "capitalize", variant: "subtle", color }, () =>
-        row.getValue("role"),
+        role === "owner"
+          ? "Creador"
+          : role === "editor"
+            ? "Editor"
+            : role === "uploader"
+              ? "Aportador"
+              : role,
       );
     },
   },
@@ -255,6 +301,10 @@ function getRowItems(row: Row<User>) {
   ];
 }
 
+const search = ref("");
+const page = ref(1);
+const itemsPerPage = ref(10);
+
 const handleRestoreUser = async () => {
   if (!selectedUser.value) return;
 
@@ -297,12 +347,39 @@ const handleToggleUserActive = async () => {
 };
 
 const loadUsers = async () => {
-  const response = await fetchAllUsersAdmin();
+  const response = await fetAllUsersAdminWithSkipAndLimit(0, 10);
   if (response.success && response.data) {
     data.value = response.data;
   }
   showToast(response);
 };
+
+const filteredUsers = computed(() => {
+  return data.value.filter((user) => {
+    if (
+      search.value &&
+      !user.name.toLowerCase().includes(search.value.toLowerCase())
+    )
+      return false;
+
+    return true;
+  });
+});
+
+const fetchUsers = async (skip: number, limit: number) => {
+  const response = await fetAllUsersAdminWithSkipAndLimit(skip, limit);
+
+  if (response.success && response.data) {
+    data.value = response.data;
+  }
+};
+
+watch(
+  () => itemsPerPage.value,
+  async (newValue) => {
+    fetchUsers((page.value - 1) * newValue, newValue);
+  },
+);
 
 document.title = "Usuarios - DDSC Admin";
 

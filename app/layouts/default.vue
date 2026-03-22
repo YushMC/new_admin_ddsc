@@ -18,25 +18,23 @@
       </template>
 
       <template #footer="{ collapsed }">
-        <UCard class="h-fit w-full" variant="soft">
-          <UButton
-            :avatar="{
-              src: dataUser?.logo ?? '',
-              size: '2xl',
-            }"
-            color="neutral"
-            variant="ghost"
-            to="/profile"
-            class="w-full pl-0"
-            :block="collapsed"
-            size="lg"
-          >
-            <div class="w-full flex flex-col gap-1 justify-start items-start">
-              <h1 class="text-lg">{{ dataUser?.name }}</h1>
-              <h4 class="text-sm">{{ dataUser?.role }}</h4>
-            </div>
-          </UButton>
-        </UCard>
+        <UButton
+          :avatar="{
+            src: dataUser?.logo ?? '',
+            size: 'lg',
+          }"
+          color="neutral"
+          variant="ghost"
+          to="/profile"
+          class="w-full"
+          :block="collapsed"
+          size="lg"
+        >
+          <div class="w-full flex flex-col gap-1 justify-start items-start">
+            <h1 class="text-lg">{{ dataUser?.name }}</h1>
+            <h4 class="text-sm">{{ dataUser?.role }}</h4>
+          </div>
+        </UButton>
       </template>
     </UDashboardSidebar>
 

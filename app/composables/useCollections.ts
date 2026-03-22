@@ -5,6 +5,16 @@ const fetchAllCollections = async () => {
   );
 };
 
+const fetchAllCollectionsWithSkipAndLimit = async (
+  skip: number,
+  limit: number,
+) => {
+  return await getFetchWithToken<CollectionResponse[]>(
+    "COLLECTIONS-ADMIN",
+    `all?skip=${skip}&limit=${limit}`,
+  );
+};
+
 const fetchSaveCollection = async (data: Collection) => {
   return await postFetchWithToken<CollectionResponse>("COLLECTIONS", "", data);
 };
@@ -33,6 +43,7 @@ const useCollections = () => {
     fetchSaveCollection,
     fetchUpdateCollection,
     fetchUpdateStatusCollection,
+    fetchAllCollectionsWithSkipAndLimit,
   };
 };
 

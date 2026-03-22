@@ -9,8 +9,44 @@
     </div>
 
     <UCard>
+      <UContainer
+        class="w-full flex items-center justify-evenly mb-5 gap-5 flex-wrap"
+      >
+        <UContainer
+          class="size-fit overflow-hidden flex jusify-center items-center p-0 m-0"
+        >
+          <UPagination
+            class="size-fit"
+            v-model:page="page"
+            :sibling-count="1"
+            :total="filteredGenres.length"
+            :items-per-page="itemsPerPage"
+            variant="ghost"
+          />
+        </UContainer>
+
+        <UFormField class="w-100 flex justify-center gap-2 flex-wrap">
+          <UInput
+            v-model="search"
+            placeholder="Buscar Género..."
+            class="w-50"
+            icon="i-lucide-search"
+            size="md"
+            variant="soft"
+          />
+          <USelect
+            v-model="itemsPerPage"
+            class="w-20 ml-5"
+            :items="[
+              { label: '5', value: 5 },
+              { label: '10', value: 10 },
+              { label: '20', value: 20 },
+            ]"
+          />
+        </UFormField>
+      </UContainer>
       <UContainer>
-        <UTable :data="data" :columns="columns" class="flex-1" />
+        <UTable :data="filteredGenres" :columns="columns" class="flex-1" />
       </UContainer>
     </UCard>
 
@@ -88,7 +124,7 @@ import useToastAlerts from "~/utils/toastAlerts";
 const { showToast } = useToastAlerts();
 const { decodeToken } = useAuth();
 const {
-  fetchAllGenres,
+  fetchAllGenresWithSkipAndLimit,
   fetchSaveGenre,
   fetchUpdateGenre,
   fetchUpdateStatusGenre,
@@ -97,7 +133,9 @@ const {
 const UButton = resolveComponent("UButton");
 const UBadge = resolveComponent("UBadge");
 const UDropdownMenu = resolveComponent("UDropdownMenu");
-
+const search = ref("");
+const page = ref(1);
+const itemsPerPage = ref(10);
 const data = ref<GenreResponse[]>([]);
 
 const open = ref(false);
@@ -234,6 +272,31 @@ const resetSelectedGenre = () => {
   open.value = false;
 };
 
+const filteredGenres = computed(() => {
+  return data.value.filter((genre) => {
+    if (
+      search.value &&
+      !genre.resource.name.toLowerCase().includes(search.value.toLowerCase())
+    )
+      return false;
+
+    return true;
+  });
+});
+
+watch(
+  () => itemsPerPage.value,
+  async () => {
+    const statsResp = await fetchAllGenresWithSkipAndLimit(
+      (page.value - 1) * itemsPerPage.value,
+      itemsPerPage.value,
+    );
+    if (statsResp && statsResp.data) {
+      data.value = statsResp.data;
+    }
+  },
+);
+
 document.title = "Géneros - DDSC Admin";
 
 onBeforeMount(async () => {
@@ -241,7 +304,7 @@ onBeforeMount(async () => {
   if (userData.value.role === "uploader") {
     router.push("/");
   }
-  const genresResponse = await fetchAllGenres();
+  const genresResponse = await fetchAllGenresWithSkipAndLimit(0, 10);
   showToast(genresResponse);
   if (genresResponse.success && genresResponse.data) {
     data.value = genresResponse.data;

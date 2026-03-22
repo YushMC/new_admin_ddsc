@@ -10,8 +10,32 @@ const fetchModsAdmin = async (): Promise<
     };
   }
 };
+
+const fetchModsAdminWithSkipAndLimit = async (skip: number, limit: number) => {
+  try {
+    return await getFetchWithToken<ModResponse[]>(
+      "MODS-ADMIN",
+      `all?skip=${skip}&limit=${limit}`,
+    );
+  } catch (error) {
+    return {
+      success: false,
+      message: (error as Error).message,
+    };
+  }
+};
+
 const fetchAllModsInRevision = async () =>
   await getFetchWithToken<ModResponse[]>("MODS-ADMIN", "revision");
+
+const fetchAllModsInRevisionWithSkipAndLimit = async (
+  skip: number,
+  limit: number,
+) =>
+  await getFetchWithToken<ModResponse[]>(
+    "MODS-ADMIN",
+    `revision?skip=${skip}&limit=${limit}`,
+  );
 
 const fetchModByIDAdmin = async (
   id: number,
@@ -53,6 +77,12 @@ const fetchModByID = async (
 const fetchMyMods = async () =>
   await getFetchWithToken<ModResponse[]>("MODS", "my-mods");
 
+const fetchMyModsWithSkipAndLimit = async (skip: number, limit: number) =>
+  await getFetchWithToken<ModResponse[]>(
+    "MODS",
+    `my-mods?skip=${skip}&limit=${limit}`,
+  );
+
 export const useMods = () => {
   return {
     fetchMods,
@@ -60,6 +90,9 @@ export const useMods = () => {
     fetchModByIDAdmin,
     fetchModByID,
     fetchMyMods,
+    fetchMyModsWithSkipAndLimit,
     fetchAllModsInRevision,
+    fetchAllModsInRevisionWithSkipAndLimit,
+    fetchModsAdminWithSkipAndLimit,
   };
 };

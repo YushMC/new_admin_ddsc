@@ -1,5 +1,11 @@
-const fetchAllUsers = async () => {
-  return await getFetchWithToken<User[]>("USERS", "");
+const fetAllUsersAdminWithSkipAndLimit = async (
+  skip: number,
+  limit: number,
+) => {
+  return await getFetchWithToken<User[]>(
+    "USERS-ADMIN",
+    `all?skip=${skip}&limit=${limit}`,
+  );
 };
 
 const fetchAllUsersAdmin = async () => {
@@ -58,7 +64,7 @@ const fetchUpdateStatus = async (id: number, is_active: boolean) => {
 
 export const useUsers = () => {
   return {
-    fetchAllUsers,
+    fetAllUsersAdminWithSkipAndLimit,
     fetchAllSaveCredits,
     fetchUpdateInfoUser,
     fetchGetUserById,

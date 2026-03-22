@@ -9,8 +9,45 @@
     </div>
 
     <UCard>
+      <UContainer
+        class="w-full flex items-center justify-evenly mb-5 gap-5 flex-wrap"
+      >
+        <UContainer
+          class="size-fit overflow-hidden flex jusify-center items-center p-0 m-0"
+        >
+          <UPagination
+            class="size-fit"
+            v-model:page="page"
+            :sibling-count="1"
+            :total="filteredCollections.length"
+            :items-per-page="itemsPerPage"
+            variant="ghost"
+          />
+        </UContainer>
+
+        <UFormField class="w-100 flex justify-center gap-2 flex-wrap">
+          <UInput
+            v-model="search"
+            placeholder="Buscar Colección..."
+            class="w-50"
+            icon="i-lucide-search"
+            size="md"
+            variant="soft"
+          />
+          <USelect
+            v-model="itemsPerPage"
+            class="w-20 ml-5"
+            :items="[
+              { label: '10', value: 10 },
+              { label: '20', value: 20 },
+              { label: '50', value: 50 },
+              { label: '100', value: 100 },
+            ]"
+          />
+        </UFormField>
+      </UContainer>
       <UContainer>
-        <UTable :data="collections" :columns="columns" class="flex-1" />
+        <UTable :data="filteredCollections" :columns="columns" class="flex-1" />
       </UContainer>
     </UCard>
 
@@ -146,7 +183,7 @@ import type { BreadcrumbItem, TableColumn } from "@nuxt/ui";
 import type { Row } from "@tanstack/vue-table";
 import useToastAlerts from "~/utils/toastAlerts";
 const {
-  fetchAllCollections,
+  fetchAllCollectionsWithSkipAndLimit,
   fetchSaveCollection,
   fetchUpdateCollection,
   fetchUpdateStatusCollection,
@@ -155,7 +192,9 @@ const {
 const UButton = resolveComponent("UButton");
 const UBadge = resolveComponent("UBadge");
 const UDropdownMenu = resolveComponent("UDropdownMenu");
-
+const search = ref("");
+const page = ref(1);
+const itemsPerPage = ref(10);
 const { showToast } = useToastAlerts();
 const collections = ref<CollectionResponse[]>([]);
 const newCollection = ref<Collection>({
@@ -334,10 +373,37 @@ const handleUpdateCollection = async () => {
   showToast(response);
 };
 
+const filteredCollections = computed(() => {
+  return collections.value.filter((collection) => {
+    if (
+      search.value &&
+      !collection.resource.name
+        .toLowerCase()
+        .includes(search.value.toLowerCase())
+    )
+      return false;
+
+    return true;
+  });
+});
+
+watch(
+  () => itemsPerPage.value,
+  async () => {
+    const statsResp = await fetchAllCollectionsWithSkipAndLimit(
+      (page.value - 1) * itemsPerPage.value,
+      itemsPerPage.value,
+    );
+    if (statsResp && statsResp.data) {
+      collections.value = statsResp.data;
+    }
+  },
+);
+
 document.title = "Colecciones - DDSC Admin";
 
 onBeforeMount(async () => {
-  const response = await fetchAllCollections();
+  const response = await fetchAllCollectionsWithSkipAndLimit(0, 10);
   showToast(response);
   if (response.success && response.data) {
     collections.value = response.data;

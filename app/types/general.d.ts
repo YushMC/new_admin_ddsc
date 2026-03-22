@@ -1,6 +1,6 @@
 type responseStatusData = "success" | "error";
 
-type rolesNames = "editor" | "uploader";
+type rolesNames = "editor" | "uploader" | "owner";
 
 interface InfoDetail {
   created_at: string;
