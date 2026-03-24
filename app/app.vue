@@ -16,7 +16,11 @@ const router = useRouter();
 
 import { es } from "@nuxt/ui/locale";
 
-const token = decodeToken();
+const token = ref(null);
+
+onMounted(() => {
+  token.value = decodeToken();
+});
 
 watch(
   () => route.path,
@@ -30,7 +34,7 @@ watch(
       newValue.startsWith("/collections") &&
       newValue.startsWith("/genres")
     ) {
-      if (token?.role === "uploader") {
+      if (token.value?.role === "uploader") {
         router.push("/");
       }
     }
