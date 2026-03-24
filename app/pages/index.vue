@@ -3,9 +3,7 @@
 </template>
 
 <script setup lang="ts">
-const router = useRouter();
-
 onBeforeMount(() => {
-  router.push("/mods");
+  navigateTo("/mods");
 });
 </script>
