@@ -28,8 +28,7 @@ watch(
     if (
       newValue.startsWith("/users") &&
       newValue.startsWith("/collections") &&
-      newValue.startsWith("/genres") &&
-      newValue.startsWith("/requests")
+      newValue.startsWith("/genres")
     ) {
       if (token?.role === "uploader") {
         router.push("/");

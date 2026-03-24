@@ -8,13 +8,13 @@ const clearToken = () => {
 
 const decodeToken = () => {
   const token = localStorage.getItem("auth_token");
-  if (!token) return {} as tokenData;
+  if (!token) return null;
   try {
     const payload = token.split(".")[1];
-    if (!payload) return {} as tokenData;
+    if (!payload) return null;
     return JSON.parse(atob(payload)) as tokenData;
   } catch (e) {
-    return {} as tokenData;
+    return null;
   }
 };
 

@@ -28,15 +28,6 @@ const fetchModsAdminWithSkipAndLimit = async (skip: number, limit: number) => {
 const fetchAllModsInRevision = async () =>
   await getFetchWithToken<ModResponse[]>("MODS-ADMIN", "revision");
 
-const fetchAllModsInRevisionWithSkipAndLimit = async (
-  skip: number,
-  limit: number,
-) =>
-  await getFetchWithToken<ModResponse[]>(
-    "MODS-ADMIN",
-    `revision?skip=${skip}&limit=${limit}`,
-  );
-
 const fetchModByIDAdmin = async (
   id: number,
 ): Promise<ReturnDataFromFetch<ModResponse>> => {
@@ -83,6 +74,9 @@ const fetchMyModsWithSkipAndLimit = async (skip: number, limit: number) =>
     `my-mods?skip=${skip}&limit=${limit}`,
   );
 
+const fetchUpdateMod = async (id: number, data: any) =>
+  await putFetchWithToken("MODS", String(id), data);
+
 export const useMods = () => {
   return {
     fetchMods,
@@ -92,7 +86,7 @@ export const useMods = () => {
     fetchMyMods,
     fetchMyModsWithSkipAndLimit,
     fetchAllModsInRevision,
-    fetchAllModsInRevisionWithSkipAndLimit,
     fetchModsAdminWithSkipAndLimit,
+    fetchUpdateMod,
   };
 };

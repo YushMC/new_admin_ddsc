@@ -74,13 +74,17 @@
                 </div>
 
                 <!-- Lista -->
+
                 <UCard
                   v-for="noti in notifications"
                   :key="noti.id"
                   :variant="noti.status === 'read' ? 'outline' : 'soft'"
                   class="w-full"
                 >
-                  <div class="flex items-start gap-3">
+                  <div
+                    class="flex items-start gap-3"
+                    @click="gotToNotification(noti)"
+                  >
                     <!-- Icono -->
                     <div class="mt-1 relative">
                       <UChip
@@ -206,6 +210,11 @@ const items = ref<NavigationMenuItem[]>([
     ],
     //badge: "4",
   },
+  {
+    label: "Solicitudes",
+    icon: "i-lucide-inbox",
+    to: "/requests",
+  },
 ]);
 
 const notifications = ref<NotificationsData[]>([]);
@@ -258,11 +267,6 @@ onBeforeMount(async () => {
       },
 
       {
-        label: "Solicitudes",
-        icon: "i-lucide-inbox",
-        to: "/requests",
-      },
-      {
         label: "Usuarios",
         icon: "i-lucide-users",
         to: "/users",
@@ -275,6 +279,18 @@ onBeforeMount(async () => {
     countUnRead.value = response.data.unread_count;
   }
 });
+
+const gotToNotification = (notification: NotificationsData) => {
+  console.log(notification.type);
+  if (
+    notification.type === "mod_pending_review" &&
+    dataUser.value?.role !== "uploader"
+  ) {
+    markAsSeen(notification.id);
+    router.push(`/requests/detail/${notification.id_mod}`);
+    return;
+  }
+};
 
 onMounted(async () => {
   const response = await fetchAllNotifications();

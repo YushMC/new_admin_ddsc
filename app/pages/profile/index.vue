@@ -209,7 +209,7 @@
     <UCard class="h-fit mt-20">
       <UContainer class="flex justify-evenly gap-5 flex-wrap">
         <UCard class="w-100" variant="subtle">
-          <NuxtImg :src="userData.logo" class="w-full" />
+          <NuxtImg :src="userData?.logo" class="w-full" />
         </UCard>
         <UCard class="w-100 flex flex-col">
           <UFormField label="Nombre de Usuario" class="w-full">
@@ -245,15 +245,7 @@ const showCurrentPassword = ref(false);
 const showNewPassword = ref(false);
 const showConfirmNewPassword = ref(false);
 
-const userData = ref<tokenData>({
-  exp: 0,
-  sub: "",
-  name: "",
-  role: "owner",
-  about_me: "",
-  contact: "",
-  logo: "",
-});
+const userData = ref<tokenData | null>(null);
 
 const formInfo = ref({
   name: "",
@@ -307,10 +299,10 @@ document.title = "Tu Perfil - DDSC Admin";
 onBeforeMount(() => {
   userData.value = decodeToken();
   formInfo.value = {
-    name: userData.value.name,
-    about_me: userData.value.about_me,
+    name: userData.value?.name || "",
+    about_me: userData.value?.about_me || "",
   };
-  contact.value = userData.value.contact;
+  contact.value = userData.value?.contact || "";
 });
 </script>
 

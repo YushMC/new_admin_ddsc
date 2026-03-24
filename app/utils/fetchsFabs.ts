@@ -16,7 +16,9 @@ type prefixAlloweds =
   | "COLLECTIONS"
   | "COLLECTIONS-ADMIN"
   | "MODS-COLLECTIONS"
-  | "MODS-COLLECTIONS-ADMIN";
+  | "MODS-COLLECTIONS-ADMIN"
+  | "MODS-GENRES"
+  | "MODS-GENRES-ADMIN";
 
 import CONSTANTS from "./constants";
 
@@ -39,6 +41,8 @@ const END_POINTS = {
   collectionsAdmin: `${CONSTANTS.API_BASE_URL}/collections/admin`,
   modsCollections: `${CONSTANTS.API_BASE_URL}/mods-collections`,
   modsCollectionsAdmin: `${CONSTANTS.API_BASE_URL}/mods-collections/admin`,
+  modsGenres: `${CONSTANTS.API_BASE_URL}/mods-genres`,
+  modsGenresAdmin: `${CONSTANTS.API_BASE_URL}/mods-genres/admin`,
 };
 
 const PREFIX_TO_ENDPOINT: Record<prefixAlloweds, string> = {
@@ -59,6 +63,8 @@ const PREFIX_TO_ENDPOINT: Record<prefixAlloweds, string> = {
   "COLLECTIONS-ADMIN": END_POINTS.collectionsAdmin,
   "MODS-COLLECTIONS": END_POINTS.modsCollections,
   "MODS-COLLECTIONS-ADMIN": END_POINTS.modsCollectionsAdmin,
+  "MODS-GENRES": END_POINTS.modsGenres,
+  "MODS-GENRES-ADMIN": END_POINTS.modsGenresAdmin,
 };
 
 const setBaseUrl = (prefix: prefixAlloweds): string =>
@@ -172,12 +178,12 @@ export const deleteFetchWithToken = async <T = any>(
   );
 };
 
-export const saveImagesToBD = async (
+export const saveImagesToBD = async <T = any>(
   prefix: prefixAlloweds,
   endPoint: string,
   methhodFetch: methodsAlloweds,
   file: File,
-): Promise<{ data?: any; success: boolean; message: string }> => {
+): Promise<{ data?: T; success: boolean; message: string }> => {
   let selectedEndPoint = setBaseUrl(prefix);
 
   if (endPoint && endPoint.trim() !== "") {
@@ -189,7 +195,7 @@ export const saveImagesToBD = async (
     const formData = new FormData();
     formData.append("file", file);
 
-    const response = await $fetch(selectedEndPoint, {
+    const response = await $fetch<T>(selectedEndPoint, {
       method: methhodFetch,
       headers: {
         Authorization: `Bearer ${token}`,

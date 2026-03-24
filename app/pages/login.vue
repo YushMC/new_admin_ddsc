@@ -107,6 +107,7 @@
 </template>
 
 <script setup lang="ts">
+document.title = "Iniciar Sesión - DDSC Admin";
 import useToastAlerts from "~/utils/toastAlerts";
 const { showToast } = useToastAlerts();
 import { ref } from "vue";

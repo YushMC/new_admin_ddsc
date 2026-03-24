@@ -384,10 +384,6 @@ watch(
 document.title = "Usuarios - DDSC Admin";
 
 onBeforeMount(async () => {
-  tokenDecode.value = decodeToken();
-  if (!tokenDecode.value || tokenDecode.value.role === "uploader") {
-    router.back();
-  }
   await loadUsers();
 });
 </script>

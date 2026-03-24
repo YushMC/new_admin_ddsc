@@ -11,3 +11,14 @@ interface CollectionResponse {
   resource: Collection;
   info: InfoDetail;
 }
+
+interface ModsCollection {
+  id: number;
+  mod_id: number;
+  collection: Collection;
+}
+
+interface ModsCollectionResponse {
+  resource: ModsCollection;
+  info: InfoDetail;
+}

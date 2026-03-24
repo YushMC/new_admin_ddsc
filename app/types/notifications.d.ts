@@ -1,10 +1,10 @@
-type NotificationsStatus = "UNREAD" | "READ";
+type NotificationsStatus = "unread" | "read";
 type NotificationsType =
-  | "MOD_PENDING_REVIEW"
-  | "MOD_APPROVED"
-  | "MOD_REJECTED"
-  | "MOD_DELETED"
-  | "MOD_RESTORED";
+  | "mod_pending_review"
+  | "mod_approved"
+  | "mod_rejected"
+  | "mod_deleted"
+  | "mod_restored";
 
 interface NotificationsData {
   id: number;
@@ -13,7 +13,7 @@ interface NotificationsData {
   title: string;
   message: string;
   mod_name: string;
-  status: NotificationsTypem;
+  status: NotificationsStatus;
   type: NotificationsType;
   created_at: string;
   action_by: string;

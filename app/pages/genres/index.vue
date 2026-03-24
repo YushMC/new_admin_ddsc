@@ -143,15 +143,7 @@ const selectedGenre = ref<GenreResponse | null>(null);
 
 const router = useRouter();
 const genre = ref("");
-const userData = ref<tokenData>({
-  exp: 0,
-  sub: "",
-  name: "",
-  role: "editor",
-  logo: "",
-  about_me: "",
-  contact: "",
-});
+const userData = ref<tokenData | null>(null);
 const items = ref<BreadcrumbItem[]>([
   {
     label: "Géneros",
@@ -301,7 +293,7 @@ document.title = "Géneros - DDSC Admin";
 
 onBeforeMount(async () => {
   userData.value = decodeToken();
-  if (userData.value.role === "uploader") {
+  if (userData.value?.role === "uploader") {
     router.push("/");
   }
   const genresResponse = await fetchAllGenresWithSkipAndLimit(0, 10);

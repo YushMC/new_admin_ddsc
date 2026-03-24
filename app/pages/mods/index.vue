@@ -119,6 +119,7 @@
 <script setup lang="ts">
 import type { BreadcrumbItem } from "@nuxt/ui";
 import type { TableColumn } from "@nuxt/ui";
+import { ro } from "@nuxt/ui/runtime/locale/index.js";
 import type { Row } from "@tanstack/vue-table";
 import useToastAlerts from "~/utils/toastAlerts";
 
@@ -176,15 +177,7 @@ const search = ref("");
 const page = ref(1);
 const itemsPerPage = ref(10);
 
-const token = ref<tokenData>({
-  exp: 0,
-  sub: "",
-  name: "",
-  role: "owner",
-  logo: "",
-  about_me: "",
-  contact: "",
-});
+const token = ref<tokenData | null>(null);
 
 const filteredMods = computed(() => {
   return mods.value.filter((mod) => {
@@ -311,16 +304,10 @@ const columns: TableColumn<ModResponse>[] = [
 ];
 
 function getRowItems(row: Row<ModResponse>) {
-  let itemsData = [
+  let itemsData: any[] = [
     {
       type: "label",
       label: "Acciones",
-    },
-    {
-      label: "Editar Mod",
-      onSelect() {
-        router.push(`/mods/edit/${row.original.resource.id}`);
-      },
     },
   ];
 
@@ -344,11 +331,33 @@ function getRowItems(row: Row<ModResponse>) {
       },
     });
   }
-  if (row.original.info.created_by.id === Number(token.value.sub)) {
+  if (row.original.info.created_by.id === Number(token.value?.sub)) {
     itemsData.push({
       label: "Activar Estadísticas",
       onSelect() {
+        if (row.original.resource.required_revision) {
+          showToast({
+            success: false,
+            message:
+              "Este mod requiere revisión, no se pueden activar las estadísticas",
+          });
+          return;
+        }
         create(row.original.resource.id);
+      },
+    });
+  }
+
+  if (
+    row.original.resource.required_revision === false &&
+    row.original.resource.images.some((item) => item.type === "logo") &&
+    row.original.resource.images.some((item) => item.type === "main") &&
+    row.original.credits.creators.length !== 0
+  ) {
+    itemsData.push({
+      label: "Editar Mod",
+      onSelect() {
+        router.push(`/mods/edit/${row.original.resource.id}`);
       },
     });
   }
@@ -393,7 +402,7 @@ onBeforeMount(async () => {
   if (response.success && response.data) {
     if (token.value?.role === "uploader") {
       mods.value = response.data.filter(
-        (mod) => mod.info.created_by.id === Number(token.value.sub),
+        (mod: any) => mod.info.created_by.id === Number(token.value?.sub),
       );
       return;
     }

@@ -178,13 +178,6 @@ const handleCancel = () => {
 };
 
 document.title = "Crear Usuario - DDSC Admin";
-
-onBeforeMount(() => {
-  const tokenDecode = decodeToken();
-  if (!tokenDecode || tokenDecode.role === "uploader") {
-    router.back();
-  }
-});
 </script>
 
 <style scoped></style>

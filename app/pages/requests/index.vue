@@ -115,8 +115,12 @@ import type { BreadcrumbItem } from "@nuxt/ui";
 import type { TableColumn } from "@nuxt/ui";
 import type { Row } from "@tanstack/vue-table";
 import useToastAlerts from "~/utils/toastAlerts";
-const { fetchAllModsInRevisionWithSkipAndLimit } = useMods();
+const {
+  fetchAllModsInRevisionWithSkipAndLimit,
+  fetchMyModsInRevisionWithSkipAndLimit,
+} = useRequest();
 const { showToast } = useToastAlerts();
+const { decodeToken } = useAuth();
 const UButton = resolveComponent("UButton");
 const UBadge = resolveComponent("UBadge");
 const UDropdownMenu = resolveComponent("UDropdownMenu");
@@ -164,7 +168,7 @@ const selectedVisibility = ref<boolean | undefined>(undefined);
 const search = ref("");
 const page = ref(1);
 const itemsPerPage = ref(10);
-
+const tokenData = ref<tokenData | null>(null);
 const columns: TableColumn<ModResponse>[] = [
   {
     header: "#",
@@ -262,7 +266,7 @@ function getRowItems(row: Row<ModResponse>) {
     {
       label: "Ver Datos",
       onSelect() {
-        router.push(`/request/detail/${row.original.resource.id}`);
+        router.push(`/requests/detail/${row.original.resource.id}`);
       },
     },
   ];
@@ -307,28 +311,29 @@ const filteredMods = computed(() => {
 });
 
 const fetchModsWithSkipAndLimit = async (skip: number, limit: number) => {
-  const response = await fetchAllModsInRevisionWithSkipAndLimit(skip, limit);
+  const response =
+    tokenData.value?.role === "uploader"
+      ? await fetchMyModsInRevisionWithSkipAndLimit(skip, limit)
+      : await fetchAllModsInRevisionWithSkipAndLimit(skip, limit);
 
   if (response.success && response.data) {
     mods.value = response.data;
   }
+  showToast(response);
 };
 
 watch(
   () => itemsPerPage.value,
   async (newValue) => {
-    fetchModsWithSkipAndLimit((page.value - 1) * newValue, newValue);
+    await fetchModsWithSkipAndLimit((page.value - 1) * newValue, newValue);
   },
 );
 
 document.title = "Mods en Revisión - Admin DDSC";
 
 onBeforeMount(async () => {
-  const response = await fetchAllModsInRevisionWithSkipAndLimit(0, 10);
-  showToast(response);
-  if (response.success && response.data) {
-    mods.value = response.data;
-  }
+  tokenData.value = decodeToken();
+  await fetchModsWithSkipAndLimit(0, 10);
 });
 </script>
 

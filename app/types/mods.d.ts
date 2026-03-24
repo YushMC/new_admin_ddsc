@@ -35,6 +35,10 @@ interface Mod {
   images: ImagesInterface[];
   genres: string[];
   required_revision: boolean;
+  download_pc: string | null;
+  download_android: string | null;
+  created_at?: string;
+  comments?: string | null;
 }
 
 interface ImagesInterface {

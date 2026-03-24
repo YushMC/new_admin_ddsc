@@ -121,7 +121,7 @@ import type { BreadcrumbItem } from "@nuxt/ui";
 import useToastAlerts from "~/utils/toastAlerts";
 const { showToast } = useToastAlerts();
 const { decodeToken } = useAuth();
-const { fetchAllUsers, fetchAllSaveCredits } = useUsers();
+const { fetAllUsersAdminWithSkipAndLimit, fetchAllSaveCredits } = useUsers();
 const { fetchModByID, fetchModByIDAdmin } = useMods();
 
 const typeUserOptions = ref<{ label: string; value: number }[]>([]);
@@ -185,9 +185,9 @@ const handleUploadCredits = async () => {
 };
 
 const getUsers = async () => {
-  const response = await fetchAllUsers();
+  const response = await fetAllUsersAdminWithSkipAndLimit(0, 100);
   if (response.success && response.data) {
-    typeUserOptions.value = response.data.map((item) => {
+    typeUserOptions.value = response.data.map((item: any) => {
       return {
         label: item.name,
         value: item.id,

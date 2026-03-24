@@ -711,7 +711,7 @@ const handleSkip = () => {
 onBeforeMount(async () => {
   const token = decodeToken();
   const response =
-    token.role === "uploader"
+    token?.role === "uploader"
       ? await fetchModByID(Number(modId.value))
       : await fetchModByIDAdmin(Number(modId.value));
 

@@ -9,6 +9,9 @@ const fetchAllGenresWithSkipAndLimit = async (skip: number, limit: number) => {
   );
 };
 
+const fetchAllGenresForSelect = async () =>
+  await getFetchWithToken<GenreResponse[]>("GENRES", "");
+
 const fetchSaveGenre = async (name: string) => {
   return await postFetchWithToken<GenreResponse>("GENRES", "", { name });
 };
@@ -30,6 +33,7 @@ const useGenres = () => {
     fetchUpdateGenre,
     fetchUpdateStatusGenre,
     fetchAllGenresWithSkipAndLimit,
+    fetchAllGenresForSelect,
   };
 };
 
