@@ -410,6 +410,21 @@
                   />
                 </UFormField>
 
+                <UFormField
+                  label="Restricciones de edad (+18)"
+                  name="is_c_rated"
+                  required
+                >
+                  <USwitch
+                    v-model="modDataBase.is_c_rated"
+                    class="mt-2"
+                    :true-value="true"
+                    :false-value="false"
+                  />
+                  <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                    Indica si el mod no es apto para todas las edades.
+                  </p>
+                </UFormField>
                 <!-- Release Date Input (Optional) -->
                 <UFormField label="Fecha de lanzamiento" name="releaseDate">
                   <UInput
@@ -464,6 +479,44 @@
           </UModal>
         </template>
       </UCard>
+
+      <UCard class="flex flex-col gap-5 w-80" variant="soft">
+        <template #header>
+          <h2 class="text-xl font-semibold">Activar/Desactivar</h2>
+        </template>
+        <p class="mb-5">Activa o desactiva el mod .</p>
+        <template #footer>
+          <UModal title="Editar Visibilidad">
+            <UButton
+              class="w-full"
+              color="warning"
+              variant="subtle"
+              icon="i-lucide-eye"
+              >Activar/Desactivar Mod
+            </UButton>
+            <template #body>
+              <div class="space-y-4 p-5 w-full flex flex-col">
+                <UFormField
+                  label="Visibilidad del Mod"
+                  name="is_c_rated"
+                  required
+                >
+                  <USwitch
+                    v-model="infoStatus.is_active"
+                    class="mt-2 w-full"
+                    :true-value="true"
+                    :false-value="false"
+                    @change="handleUpdateVisibilityMod"
+                  />
+                  <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                    Indica si el mod está activo o inactivo.
+                  </p>
+                </UFormField>
+              </div>
+            </template>
+          </UModal>
+        </template>
+      </UCard>
     </UContainer>
   </div>
 </template>
@@ -473,7 +526,13 @@ import type { BreadcrumbItem } from "@nuxt/ui";
 import useToastAlerts from "~/utils/toastAlerts";
 import "@vueup/vue-quill/dist/vue-quill.snow.css";
 import { QuillEditor } from "@vueup/vue-quill";
-const { fetchModByID, fetchModByIDAdmin, fetchUpdateMod } = useMods();
+const {
+  fetchModByID,
+  fetchModByIDAdmin,
+  fetchUpdateMod,
+  fetchDeleteMod,
+  fetchReactivateMod,
+} = useMods();
 const { fetchAllCollections } = useCollections();
 const {
   fetchAllModsCollection,
@@ -526,10 +585,13 @@ const modDataBase = ref<Mod>({
   images: [],
   genres: [],
   required_revision: false,
+  is_c_rated: false,
   download_pc: "",
   download_android: "",
   created_at: "",
 });
+
+const infoStatus = ref({ is_active: false });
 
 const statusOptions: { value: Status; label: string }[] = [
   { value: "under_development", label: "En Desarrollo" },
@@ -602,6 +664,7 @@ const getModById = async (id: number) => {
       : await fetchModByIDAdmin(id);
   showToast(response);
   if (response.success && response.data) {
+    infoStatus.value.is_active = response.data.info.is_active;
     Object.assign(modDataBase.value, {
       ...response.data.resource,
       created_at: response.data.info.created_at.split("T")[0] ?? "",
@@ -849,6 +912,22 @@ const handleUpdateMod = async () => {
   const response = await fetchUpdateMod(modDataBase.value.id, data);
   showToast(response);
   await getModById(modId.value);
+};
+
+const handleUpdateVisibilityMod = async () => {
+  let response;
+  if (infoStatus.value.is_active === true) {
+    response = await fetchReactivateMod(modDataBase.value.id);
+  } else {
+    response = await fetchDeleteMod(
+      modDataBase.value.id,
+      "Suspensión por parte del administrador.",
+    );
+  }
+
+  showToast(response);
+  await getModById(modId.value);
+  return;
 };
 
 /*TODO: carga de datos inicial */

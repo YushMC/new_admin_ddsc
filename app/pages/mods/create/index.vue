@@ -100,6 +100,18 @@
             />
           </UFormField>
 
+          <UFormField
+            label="Restricciones de edad (+18)"
+            name="is_c_rated"
+            required
+          >
+            <USwitch v-model="form.is_c_rated" class="mt-2" />
+            <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">
+              Marca esta opción si el mod contiene contenido para mayores de 18
+              años.
+            </p>
+          </UFormField>
+
           <!-- Release Date Input (Optional) -->
           <UFormField label="Fecha de lanzamiento" name="releaseDate">
             <UInput
@@ -298,6 +310,7 @@ const form = ref({
   duration: "medium" as Duration,
   character: "mc" as Character,
   created_at: "" as string,
+  is_c_rated: false as boolean,
   download_pc: "",
   download_android: "",
 });

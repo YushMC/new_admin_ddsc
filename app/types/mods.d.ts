@@ -37,6 +37,7 @@ interface Mod {
   required_revision: boolean;
   download_pc: string | null;
   download_android: string | null;
+  is_c_rated: boolean;
   created_at?: string;
   comments?: string | null;
 }

@@ -77,6 +77,12 @@ const fetchMyModsWithSkipAndLimit = async (skip: number, limit: number) =>
 const fetchUpdateMod = async (id: number, data: any) =>
   await putFetchWithToken("MODS", String(id), data);
 
+const fetchDeleteMod = async (id: number, reason: string) =>
+  await deleteFetchWithToken("MODS", String(id), { reason });
+
+const fetchReactivateMod = async (id: number) =>
+  await postFetchWithToken("MODS", `${id}/restore`, {});
+
 export const useMods = () => {
   return {
     fetchMods,
@@ -88,5 +94,7 @@ export const useMods = () => {
     fetchAllModsInRevision,
     fetchModsAdminWithSkipAndLimit,
     fetchUpdateMod,
+    fetchDeleteMod,
+    fetchReactivateMod,
   };
 };

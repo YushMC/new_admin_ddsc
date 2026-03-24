@@ -8,6 +8,16 @@
       </h1>
     </div>
 
+    <UAlert
+      v-if="modDataBase?.is_c_rated"
+      variant="soft"
+      color="error"
+      class="flex items-start gap-3"
+      icon="i-lucide-triangule-alert"
+      title="Mod +18"
+      description="El mod contiene contenido para mayores de 18 años. Asegúrate de tener la edad adecuada antes de descargarlo o jugarlo."
+    />
+
     <!-- Main Content -->
     <div v-if="modDataBase" class="space-y-6">
       <!-- Gallery Section -->
@@ -394,6 +404,7 @@ const modDataBase = ref<Mod>({
   type: "translation",
   images: [],
   genres: [],
+  is_c_rated: false as boolean,
   required_revision: false,
   download_pc: null,
   download_android: null,
