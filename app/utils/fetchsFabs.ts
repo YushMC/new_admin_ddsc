@@ -84,7 +84,7 @@ export const fetchWithToken = async <T = any>(
     if (endPoint && endPoint.trim() !== "") {
       selectedEndPoint = `${selectedEndPoint}/${endPoint}`;
     }
-    const token = process.client ? (localStorage.getItem("auth_token") ?? "") : "";
+    const token = typeof window !== "undefined" ? (localStorage.getItem("auth_token") ?? "") : "";
     const response = await $fetch<responseDataFromFetch<T>>(selectedEndPoint, {
       method: methhodFetch,
       headers: {
@@ -191,7 +191,7 @@ export const saveImagesToBD = async <T = any>(
   }
 
   try {
-    const token = process.client ? (localStorage.getItem("auth_token") ?? "") : "";
+    const token = typeof window !== "undefined" ? (localStorage.getItem("auth_token") ?? "") : "";
     const formData = new FormData();
     formData.append("file", file);
 

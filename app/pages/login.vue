@@ -133,7 +133,7 @@ const handleLogin = async () => {
   try {
     const response = await login(form.username, form.password);
     if (response && response.data) {
-      if (process.client) {
+      if (typeof window !== "undefined") {
         localStorage.setItem("auth_token", response.data);
       }
       router.push("/");
