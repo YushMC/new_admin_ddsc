@@ -33,7 +33,7 @@ interface Mod {
   status: Status;
   type: ModType;
   images: ImagesInterface[];
-  genres: string[];
+  genres: ModGenre[];
   required_revision: boolean;
   download_pc: string | null;
   download_android: string | null;
@@ -49,13 +49,22 @@ interface ImagesInterface {
 }
 
 interface ModResponse {
+  genres: Genre[];
+  collections: boolean;
   resource: Mod;
   info: InfoDetail;
   credits: CreditsResponse;
 }
 
+interface Credit {
+  id: number;
+  type: "original_creator" | "porter" | "translator";
+  user?: User;
+  name?: string;
+}
+
 interface CreditsResponse {
-  creators: string[];
-  porters: string[];
-  translators: string[];
+  creators: Credit[];
+  porters: Credit[];
+  translators: Credit[];
 }

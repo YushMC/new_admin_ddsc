@@ -584,28 +584,7 @@ const mainImageToUpload = ref<{ id: number; file: File | null }>({
 
 const screenshotsToUpload = ref<
   { id: number; currency_url: string; file: File | null }[]
->([
-  {
-    id: 1,
-    currency_url: "",
-    file: null,
-  },
-  {
-    id: 2,
-    currency_url: "",
-    file: null,
-  },
-  {
-    id: 3,
-    currency_url: "",
-    file: null,
-  },
-  {
-    id: 4,
-    currency_url: "",
-    file: null,
-  },
-]);
+>([]);
 
 const gendersOptions = ref<{ value: number; label: string }[]>([]);
 const collectionOptions = ref<{ value: number; label: string }[]>([]);
@@ -652,6 +631,8 @@ const getModById = async (id: number) => {
 
           file: null,
         }));
+      } else {
+        screenshotsToUpload.value = [];
       }
     }
   }
@@ -791,15 +772,7 @@ const handleNewScreenshot = async () => {
     uploadNewScreenshot.value,
   );
   showToast(response);
-  if (response.success && response.data) {
-    const newScreenshot = response.data.resource;
-    screenshotsToUpload.value.push({
-      id: newScreenshot.id,
-      currency_url: newScreenshot.url,
-      file: null,
-    });
-    uploadNewScreenshot.value = null;
-  }
+  await getModById(modId.value);
 };
 
 const handleNewCollection = async () => {
@@ -815,6 +788,7 @@ const handleNewCollection = async () => {
     selectedCollection.value,
   );
   showToast(response);
+  await getModById(modId.value);
 };
 
 const handleUpdateCollectionStatus = async (
@@ -823,11 +797,13 @@ const handleUpdateCollectionStatus = async (
 ) => {
   const response = await fetchUpdateModStatusCollection(modID, isActive);
   showToast(response);
+  await getModById(modId.value);
 };
 
 const handleUpdateCollection = async (modID: number, collection_id: number) => {
   const response = await fetchUpdateModCollection(modID, collection_id);
   showToast(response);
+  await getModById(modId.value);
 };
 
 const handleNewGenre = async () => {
@@ -843,16 +819,19 @@ const handleNewGenre = async () => {
     genderSelected.value,
   );
   showToast(response);
+  await getModById(modId.value);
 };
 
 const handleUpdateGenreStatus = async (modID: number, isActive: boolean) => {
   const response = await fetchUpdateStatusModGenre(modID, isActive);
   showToast(response);
+  await getModById(modId.value);
 };
 
 const handleUpdateGenre = async (modID: number, genreID: number) => {
   const response = await fetchUpdateModGenre(modID, genreID);
   showToast(response);
+  await getModById(modId.value);
 };
 
 const handleUpdateMod = async () => {
@@ -869,6 +848,7 @@ const handleUpdateMod = async () => {
   };
   const response = await fetchUpdateMod(modDataBase.value.id, data);
   showToast(response);
+  await getModById(modId.value);
 };
 
 /*TODO: carga de datos inicial */

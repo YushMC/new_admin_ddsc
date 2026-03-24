@@ -222,16 +222,19 @@ const notifications = ref<NotificationsData[]>([]);
 const markAsSeen = async (id: number) => {
   const response = await fetchReadNotifications(id);
   showToast(response);
+  await getAllNotifications();
 };
 
 const markAllAsSeen = async () => {
   const response = await fetchReadAllNotifications();
   showToast(response);
+  await getAllNotifications();
 };
 
 const removeNotification = async (id: number) => {
   const response = await fetchDeleteNotification(id);
   showToast(response);
+  await getAllNotifications();
 };
 
 const formatDate = (dateString: string) => {
@@ -280,7 +283,7 @@ onBeforeMount(async () => {
   }
 });
 
-const gotToNotification = (notification: NotificationsData) => {
+const gotToNotification = async (notification: NotificationsData) => {
   console.log(notification.type);
   if (
     notification.type === "mod_pending_review" &&
@@ -290,13 +293,18 @@ const gotToNotification = (notification: NotificationsData) => {
     router.push(`/requests/detail/${notification.id_mod}`);
     return;
   }
+  await getAllNotifications();
 };
 
-onMounted(async () => {
+const getAllNotifications = async () => {
   const response = await fetchAllNotifications();
   if (response.success && response.data) {
     notifications.value = response.data;
   }
+};
+
+onMounted(async () => {
+  await getAllNotifications();
 });
 </script>
 

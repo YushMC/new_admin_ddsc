@@ -361,6 +361,17 @@ function getRowItems(row: Row<ModResponse>) {
       },
     });
   }
+  if (
+    row.original.resource.required_revision === false &&
+    row.original.info.is_active
+  ) {
+    itemsData.push({
+      label: "Ver Previa del Mod",
+      onSelect() {
+        router.push(`/mods/preview/${row.original.resource.id}`);
+      },
+    });
+  }
   return itemsData;
 }
 
