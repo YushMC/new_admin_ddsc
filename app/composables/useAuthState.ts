@@ -11,6 +11,7 @@ export const useAuthState = () => {
 
   // Inicializar estado
   const initializeAuth = () => {
+    if (!process.client) return false;
     const token = getToken();
     const isAuth = isAuthenticated();
 
@@ -25,15 +26,17 @@ export const useAuthState = () => {
 
   // Verificar estado actual
   const checkAuth = () => {
+    if (!process.client) return false;
     const isAuth = isAuthenticated();
     authState.value.isAuthenticated = isAuth;
     authState.value.token = isAuth ? getToken() : null;
     return isAuth;
   };
 
-  // Inicializar en la primera carga
-
-  initializeAuth();
+  // Solo inicializar en el cliente
+  if (process.client) {
+    initializeAuth();
+  }
 
   return {
     authState,

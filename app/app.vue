@@ -26,7 +26,9 @@ watch(
   () => route.path,
   (newValue, oldValue) => {
     if (newValue !== oldValue) {
-      window.scrollTo(0, 0);
+      if (process.client) {
+        window.scrollTo(0, 0);
+      }
       closeAllToasts();
     }
     if (

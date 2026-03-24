@@ -133,8 +133,9 @@ const handleLogin = async () => {
   try {
     const response = await login(form.username, form.password);
     if (response && response.data) {
-      localStorage.setItem("auth_token", response.data);
-
+      if (process.client) {
+        localStorage.setItem("auth_token", response.data);
+      }
       router.push("/");
     }
     showToast(response);
