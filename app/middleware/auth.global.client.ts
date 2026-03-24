@@ -1,5 +1,6 @@
 export default defineNuxtRouteMiddleware((to, from) => {
   // Solo ejecutar en el cliente
+  if (!process.client) return;
 
   const { isAuthenticated } = useAuth();
 

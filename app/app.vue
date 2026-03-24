@@ -37,10 +37,6 @@ watch(
   },
 );
 
-definePageMeta({
-  middleware: "global",
-});
-
 useHead({
   link: [
     {
