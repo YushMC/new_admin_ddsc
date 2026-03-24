@@ -16,7 +16,7 @@ const router = useRouter();
 
 import { es } from "@nuxt/ui/locale";
 
-const token = ref(null);
+const token = ref<tokenData | null>(null);
 
 onMounted(() => {
   token.value = decodeToken();

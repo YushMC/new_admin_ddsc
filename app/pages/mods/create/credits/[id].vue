@@ -55,7 +55,7 @@
               <UFormField label="Nombre manual">
                 <UInput
                   :model-value="credit.name ?? ''"
-                  @update:model-value="(val) => (credit.name = val || null)"
+                  @update:model-value="(val) => (credit.name = val || undefined)"
                   type="text"
                   placeholder="Nombre personalizado"
                   class="w-full"
@@ -129,8 +129,8 @@ const typeUserOptions = ref<{ label: string; value: number }[]>([]);
 const credits = ref<Credit[]>([
   {
     id_user: null,
-    name: null,
     type: "original_creator",
+    id: 0,
   },
 ]);
 
@@ -156,8 +156,8 @@ const items = ref<BreadcrumbItem[]>([
 const addCredit = () => {
   credits.value.push({
     id_user: null,
-    name: null,
     type: "original_creator",
+    id: 0,
   });
 };
 

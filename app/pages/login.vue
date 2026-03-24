@@ -100,7 +100,9 @@
 
     <!-- Info Section -->
     <div class="mt-6 text-center text-xs text-gray-500 dark:text-gray-400">
-      <p>Admin DDSC © 2024</p>
+      <p>
+        Admin DDSC © {{ new Date().getFullYear() }} Doki Doki Spanish Club Org
+      </p>
       <p>Panel de administración exclusivo</p>
     </div>
   </div>
