@@ -11,22 +11,21 @@ export default defineNuxtPlugin((nuxtApp) => {
   checkAuth();
 
   // Hook que se ejecuta ANTES de navegar a una ruta
-  router.beforeEach((to, from, next) => {
+  router.beforeEach((to, from) => {
     // Verificar estado actual de autenticación
     const isUserAuthenticated = checkAuth();
     const isPublicRoute = publicRoutes.includes(to.path);
 
     // Caso 1: Ruta privada SIN autenticación → Redirigir a login
     if (!isUserAuthenticated && !isPublicRoute) {
-      return navigateTo("/login");
+      return "/login";
     }
 
     // Caso 2: Usuario autenticado intentando acceder a login → Redirigir a dashboard
     if (isUserAuthenticated && to.path === "/login") {
-      return navigateTo("/");
+      return "/";
     }
 
-    // Caso 3: Permitir acceso
-    next();
+    // Caso 3: Permitir acceso (no retornar nada = permitir)
   });
 });
