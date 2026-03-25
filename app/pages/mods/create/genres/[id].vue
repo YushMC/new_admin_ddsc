@@ -92,6 +92,9 @@ const items = ref<BreadcrumbItem[]>([
 const handleSaveGenres = async () => {
   const response = await fetchAddGenreToMod(modId, genresIds.value);
   showToast(response);
+  if (response.success) {
+    router.push(`/mods/preview/${modId}`);
+  }
 };
 
 onBeforeMount(async () => {
