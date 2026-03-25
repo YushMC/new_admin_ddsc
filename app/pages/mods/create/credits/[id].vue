@@ -181,7 +181,7 @@ const handleUploadCredits = async () => {
   showToast(response);
 
   if (response.success) {
-    router.push("/mods/genres/" + modId);
+    router.push("/mods/create/genres/" + modId);
   }
 };
 
