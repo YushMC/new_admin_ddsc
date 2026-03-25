@@ -39,6 +39,7 @@
             v-model="itemsPerPage"
             class="w-20 ml-5"
             :items="[
+              { label: '5', value: 5 },
               { label: '10', value: 10 },
               { label: '20', value: 20 },
               { label: '50', value: 50 },
@@ -50,9 +51,9 @@
       <UContainer>
         <UTable
           sticky
-          :data="filteredStats"
+          :data="paginatedItems"
           :columns="columns"
-          class="flex-1 max-h-[312px]"
+          class="flex-1 max-h-[600px]"
         />
       </UContainer>
     </UCard>
@@ -65,7 +66,7 @@ import type { TableColumn } from "@nuxt/ui";
 import useToastAlerts from "~/utils/toastAlerts";
 
 const { showToast } = useToastAlerts();
-const { fetchAllStatsWithSkipAndLimit } = useStats();
+const { fetchAllStats } = useStats();
 
 const stats = ref<StatsResponse[]>([]);
 const search = ref("");
@@ -116,22 +117,15 @@ const filteredStats = computed(() => {
   });
 });
 
-watch(
-  () => itemsPerPage.value,
-  async () => {
-    const statsResp = await fetchAllStatsWithSkipAndLimit(
-      (page.value - 1) * itemsPerPage.value,
-      itemsPerPage.value,
-    );
-    if (statsResp && statsResp.data) {
-      stats.value = statsResp.data;
-    }
-  },
-);
+const paginatedItems = computed(() => {
+  const start = (page.value - 1) * itemsPerPage.value;
+  const end = start + itemsPerPage.value;
+  return filteredStats.value.slice(start, end);
+});
 
 document.title = "Estadísticas de Mods - DDSC Admin";
 onBeforeMount(async () => {
-  const statsResp = await fetchAllStatsWithSkipAndLimit(0, 10);
+  const statsResp = await fetchAllStats();
   if (statsResp && statsResp.data) {
     stats.value = statsResp.data;
   }

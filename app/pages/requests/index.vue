@@ -40,6 +40,7 @@
             class="w-20 ml-5"
             placeholder="Filtrar por Tipo"
             :items="[
+              { label: '5', value: 5 },
               { label: '10', value: 10 },
               { label: '20', value: 20 },
               { label: '50', value: 50 },
@@ -95,7 +96,12 @@
         </UModal>
       </UContainer>
       <UContainer>
-        <UTable :data="mods" :columns="columns" class="flex-1" />
+        <UTable
+          :data="paginatedItems"
+          :columns="columns"
+          class="flex-1 max-h-[600px]"
+          sticky
+        />
       </UContainer>
     </UCard>
 
@@ -115,10 +121,7 @@ import type { BreadcrumbItem } from "@nuxt/ui";
 import type { TableColumn } from "@nuxt/ui";
 import type { Row } from "@tanstack/vue-table";
 import useToastAlerts from "~/utils/toastAlerts";
-const {
-  fetchAllModsInRevisionWithSkipAndLimit,
-  fetchMyModsInRevisionWithSkipAndLimit,
-} = useRequest();
+const { fetchAllModsInRevision, fetchMyModsInRevision } = useRequest();
 const { showToast } = useToastAlerts();
 const { decodeToken } = useAuth();
 const UButton = resolveComponent("UButton");
@@ -310,11 +313,17 @@ const filteredMods = computed(() => {
   });
 });
 
-const fetchModsWithSkipAndLimit = async (skip: number, limit: number) => {
+const paginatedItems = computed(() => {
+  const start = (page.value - 1) * itemsPerPage.value;
+  const end = start + itemsPerPage.value;
+  return filteredMods.value.slice(start, end);
+});
+
+const fetchModsWithSkipAndLimit = async () => {
   const response =
     tokenData.value?.role === "uploader"
-      ? await fetchMyModsInRevisionWithSkipAndLimit(skip, limit)
-      : await fetchAllModsInRevisionWithSkipAndLimit(skip, limit);
+      ? await fetchMyModsInRevision()
+      : await fetchAllModsInRevision();
 
   if (response.success && response.data) {
     mods.value = response.data;
@@ -322,18 +331,11 @@ const fetchModsWithSkipAndLimit = async (skip: number, limit: number) => {
   showToast(response);
 };
 
-watch(
-  () => itemsPerPage.value,
-  async (newValue) => {
-    await fetchModsWithSkipAndLimit((page.value - 1) * newValue, newValue);
-  },
-);
-
 document.title = "Mods en Revisión - Admin DDSC";
 
 onBeforeMount(async () => {
   tokenData.value = decodeToken();
-  await fetchModsWithSkipAndLimit(0, 10);
+  await fetchModsWithSkipAndLimit();
 });
 </script>
 

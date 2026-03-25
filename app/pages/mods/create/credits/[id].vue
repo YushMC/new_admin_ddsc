@@ -28,9 +28,18 @@
         </UCard>
         <USeparator class="mb-5" />
         <UCard
-          class="flex gap-20 items-center w-fit justify-center"
+          class="flex flex-col gap-20 items-center w-fit justify-center"
           variant="soft"
         >
+          <UButton
+            type="button"
+            icon="i-lucide-plus"
+            @click="addCredit"
+            variant="soft"
+            color="info"
+          >
+            Agregar nuevo crédito
+          </UButton>
           <div class="space-y-6 w-full flex justify-evenly gap-5 flex-wrap">
             <UCard
               variant="subtle"
@@ -55,7 +64,9 @@
               <UFormField label="Nombre manual">
                 <UInput
                   :model-value="credit.name ?? ''"
-                  @update:model-value="(val) => (credit.name = val || undefined)"
+                  @update:model-value="
+                    (val) => (credit.name = val || undefined)
+                  "
                   type="text"
                   placeholder="Nombre personalizado"
                   class="w-full"
@@ -90,16 +101,6 @@
         <div class="w-full flex justify-start gap-5">
           <!-- Agregar nuevo -->
           <UButton
-            type="button"
-            icon="i-lucide-plus"
-            @click="addCredit"
-            variant="soft"
-            color="info"
-          >
-            Agregar crédito
-          </UButton>
-
-          <UButton
             type="submit"
             icon="i-lucide-save"
             @click="handleUploadCredits"
@@ -121,7 +122,7 @@ import type { BreadcrumbItem } from "@nuxt/ui";
 import useToastAlerts from "~/utils/toastAlerts";
 const { showToast } = useToastAlerts();
 const { decodeToken } = useAuth();
-const { fetAllUsersAdminWithSkipAndLimit, fetchAllSaveCredits } = useUsers();
+const { fetchAllUsersAdmin, fetchAllSaveCredits } = useUsers();
 const { fetchModByID, fetchModByIDAdmin } = useMods();
 
 const typeUserOptions = ref<{ label: string; value: number }[]>([]);
@@ -180,12 +181,12 @@ const handleUploadCredits = async () => {
   showToast(response);
 
   if (response.success) {
-    router.push("/mods");
+    router.push("/mods/genres/" + modId);
   }
 };
 
 const getUsers = async () => {
-  const response = await fetAllUsersAdminWithSkipAndLimit(0, 100);
+  const response = await fetchAllUsersAdmin();
   if (response.success && response.data) {
     typeUserOptions.value = response.data.map((item: any) => {
       return {
@@ -210,6 +211,14 @@ onBeforeMount(async () => {
       : await fetchModByIDAdmin(Number(modId));
 
   if (!response.data) {
+    router.back();
+  }
+
+  if (
+    (response.data?.credits?.creators?.length ?? 0) > 0 ||
+    (response.data?.credits?.translators?.length ?? 0) > 0 ||
+    (response.data?.credits?.porters?.length ?? 0) > 0
+  ) {
     router.back();
   }
 

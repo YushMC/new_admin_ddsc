@@ -38,6 +38,7 @@
             v-model="itemsPerPage"
             class="w-20 ml-5"
             :items="[
+              { label: '5', value: 5 },
               { label: '10', value: 10 },
               { label: '20', value: 20 },
               { label: '50', value: 50 },
@@ -47,7 +48,12 @@
         </UFormField>
       </UContainer>
       <UContainer>
-        <UTable :data="filteredCollections" :columns="columns" class="flex-1" />
+        <UTable
+          :data="paginatedItems"
+          :columns="columns"
+          class="flex-1 max-h-[600px]"
+          sticky
+        />
       </UContainer>
     </UCard>
 
@@ -183,7 +189,7 @@ import type { BreadcrumbItem, TableColumn } from "@nuxt/ui";
 import type { Row } from "@tanstack/vue-table";
 import useToastAlerts from "~/utils/toastAlerts";
 const {
-  fetchAllCollectionsWithSkipAndLimit,
+  fetchAllCollections,
   fetchSaveCollection,
   fetchUpdateCollection,
   fetchUpdateStatusCollection,
@@ -325,6 +331,12 @@ const columns: TableColumn<CollectionResponse>[] = [
   },
 ];
 
+const paginatedItems = computed(() => {
+  const start = (page.value - 1) * itemsPerPage.value;
+  const end = start + itemsPerPage.value;
+  return filteredCollections.value.slice(start, end);
+});
+
 function getRowItems(row: Row<CollectionResponse>) {
   return [
     {
@@ -387,23 +399,10 @@ const filteredCollections = computed(() => {
   });
 });
 
-watch(
-  () => itemsPerPage.value,
-  async () => {
-    const statsResp = await fetchAllCollectionsWithSkipAndLimit(
-      (page.value - 1) * itemsPerPage.value,
-      itemsPerPage.value,
-    );
-    if (statsResp && statsResp.data) {
-      collections.value = statsResp.data;
-    }
-  },
-);
-
 document.title = "Colecciones - DDSC Admin";
 
 onBeforeMount(async () => {
-  const response = await fetchAllCollectionsWithSkipAndLimit(0, 10);
+  const response = await fetchAllCollections();
   showToast(response);
   if (response.success && response.data) {
     collections.value = response.data;

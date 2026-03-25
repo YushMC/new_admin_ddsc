@@ -7,33 +7,21 @@ const fetchApproveOrRejectMod = async (
     comments: data.comments ?? null,
   });
 
-const fetchMyModsInRevisionWithSkipAndLimit = async (
-  skip: number,
-  limit: number,
-) =>
-  await getFetchWithToken<ModResponse[]>(
-    "MODS",
-    `my-mods/revision?skip=${skip}&limit=${limit}`,
-  );
+const fetchMyModsInRevision = async () =>
+  await getFetchWithToken<ModResponse[]>("MODS", `my-mods/revision`);
 
 const getMyModInRevision = async (id_mod: number) =>
   await getFetchWithToken<ModResponse>("MODS", `my-mods/revision/${id_mod}`);
 
-const fetchAllModsInRevisionWithSkipAndLimit = async (
-  skip: number,
-  limit: number,
-) =>
-  await getFetchWithToken<ModResponse[]>(
-    "MODS-ADMIN",
-    `revision?skip=${skip}&limit=${limit}`,
-  );
+const fetchAllModsInRevision = async () =>
+  await getFetchWithToken<ModResponse[]>("MODS-ADMIN", `revision`);
 
 const useRequest = () => {
   return {
     fetchApproveOrRejectMod,
-    fetchMyModsInRevisionWithSkipAndLimit,
+    fetchMyModsInRevision,
     getMyModInRevision,
-    fetchAllModsInRevisionWithSkipAndLimit,
+    fetchAllModsInRevision,
   };
 };
 

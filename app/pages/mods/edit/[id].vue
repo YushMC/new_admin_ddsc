@@ -851,7 +851,7 @@ const handleNewCollection = async () => {
     selectedCollection.value,
   );
   showToast(response);
-  await getModById(modId.value);
+  await getAllCollections();
 };
 
 const handleUpdateCollectionStatus = async (
@@ -860,13 +860,13 @@ const handleUpdateCollectionStatus = async (
 ) => {
   const response = await fetchUpdateModStatusCollection(modID, isActive);
   showToast(response);
-  await getModById(modId.value);
+  await getAllCollections();
 };
 
 const handleUpdateCollection = async (modID: number, collection_id: number) => {
   const response = await fetchUpdateModCollection(modID, collection_id);
   showToast(response);
-  await getModById(modId.value);
+  await getAllCollections();
 };
 
 const handleNewGenre = async () => {
@@ -882,19 +882,19 @@ const handleNewGenre = async () => {
     genderSelected.value,
   );
   showToast(response);
-  await getModById(modId.value);
+  await getAllModsGenres();
 };
 
 const handleUpdateGenreStatus = async (modID: number, isActive: boolean) => {
   const response = await fetchUpdateStatusModGenre(modID, isActive);
   showToast(response);
-  await getModById(modId.value);
+  await getAllModsGenres();
 };
 
 const handleUpdateGenre = async (modID: number, genreID: number) => {
   const response = await fetchUpdateModGenre(modID, genreID);
   showToast(response);
-  await getModById(modId.value);
+  await getAllModsGenres();
 };
 
 const handleUpdateMod = async () => {

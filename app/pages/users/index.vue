@@ -38,8 +38,8 @@
           <USelect
             v-model="itemsPerPage"
             class="w-20 ml-5"
-            placeholder="Filtrar por Tipo"
             :items="[
+              { label: '5', value: 5 },
               { label: '10', value: 10 },
               { label: '20', value: 20 },
               { label: '50', value: 50 },
@@ -47,9 +47,49 @@
             ]"
           />
         </UFormField>
+        <UModal title="Filtros">
+          <UButton icon="i-lucide-filter" variant="ghost">Filtros</UButton>
+          <template #body>
+            <div class="flex flex-col gap-4 w-full">
+              <UButton
+                @click="resetFilters"
+                color="info"
+                variant="soft"
+                class="w-fit self-end fixed top-4 right-20 z-50"
+                icon="i-lucide-rotate-ccw"
+                >Limpiar</UButton
+              >
+              <UFormField label="Tipo">
+                <USelect
+                  v-model="selectedType"
+                  class="w-full"
+                  placeholder="Filtrar por Tipo"
+                  :items="optionsForType"
+                />
+              </UFormField>
+
+              <UFormField label="Visibilidad">
+                <USelect
+                  v-model="selectedVisibility"
+                  class="w-full"
+                  placeholder="Filtrar por Visibilidad"
+                  :items="[
+                    { label: 'Activo', value: true },
+                    { label: 'Oculto', value: false },
+                  ]"
+                />
+              </UFormField>
+            </div>
+          </template>
+        </UModal>
       </UContainer>
       <UContainer>
-        <UTable :data="filteredUsers" :columns="columns" class="flex-1" />
+        <UTable
+          :data="paginatedItems"
+          :columns="columns"
+          class="flex-1 max-h-[600px]"
+          sticky
+        />
       </UContainer>
     </UCard>
 
@@ -60,7 +100,11 @@
     >
       <template #body>
         <UCard class="flex flex-col w-full gap-5">
-          <UCard class="flex flex-col w-full gap-5" variant="soft">
+          <UCard
+            class="flex flex-col w-full gap-5"
+            variant="soft"
+            v-if="selectedUser.role !== 'owner'"
+          >
             <UFormField label="Rol del usuario" name="role" class="w-full mb-5">
               <USelect
                 :model-value="(selectedUser?.role ?? 'uploader') as rolesNames"
@@ -68,7 +112,6 @@
                 placeholder="Selecciona un rol"
                 value-key="role"
                 icon="i-lucide-shield"
-                :disabled="selectedUser?.role === 'owner'"
                 class="w-full"
                 @update:model-value="
                   (value: rolesNames) => {
@@ -80,14 +123,17 @@
               />
             </UFormField>
             <UButton
-              :disabled="selectedUser?.role === 'owner'"
               @click="handleUpdateUserRole"
               color="warning"
               icon="i-lucide-rotate-ccw"
               >Actualizar Rol</UButton
             >
           </UCard>
-          <UCard class="flex flex-col w-full gap-5 mt-5" variant="soft">
+          <UCard
+            class="flex flex-col w-full gap-5 mt-5"
+            variant="soft"
+            v-if="selectedUser.role !== 'owner'"
+          >
             <USwitch
               unchecked-icon="i-lucide-x"
               checked-icon="i-lucide-check"
@@ -97,7 +143,11 @@
               label="¿Usuario Activo?"
             />
           </UCard>
-          <UCard class="flex flex-col w-full gap-5 mt-5" variant="soft">
+          <UCard
+            class="flex flex-col w-full gap-5 mt-5"
+            variant="soft"
+            v-if="selectedUser.role === 'uploader'"
+          >
             <UFormField label="Restablecer Contraseña">
               <UInput
                 :type="showCurrentPassword ? 'text' : 'password'"
@@ -145,7 +195,6 @@
 
 <script setup lang="ts">
 import type { BreadcrumbItem } from "@nuxt/ui";
-
 const items = ref<BreadcrumbItem[]>([
   {
     label: "Usuarios",
@@ -153,14 +202,12 @@ const items = ref<BreadcrumbItem[]>([
     to: "/users",
   },
 ]);
-const { decodeToken } = useAuth();
-import { h, resolveComponent } from "vue";
 import type { TableColumn } from "@nuxt/ui";
 import type { Row } from "@tanstack/vue-table";
 import useToastAlerts from "~/utils/toastAlerts";
 
 const {
-  fetAllUsersAdminWithSkipAndLimit,
+  fetchAllUsersAdmin,
   fetchRestorePassword,
   fetchUpdateRole,
   fetchUpdateStatus,
@@ -170,23 +217,18 @@ const UButton = resolveComponent("UButton");
 const UBadge = resolveComponent("UBadge");
 const UDropdownMenu = resolveComponent("UDropdownMenu");
 const { showToast } = useToastAlerts();
-const router = useRouter();
 
-const tokenDecode = ref<tokenData>({
-  exp: 0,
-  sub: "",
-  name: "",
-  role: "editor",
-  logo: "",
-  about_me: "",
-  contact: "",
-});
 const new_password = ref("");
 const showCurrentPassword = ref(false);
 const open = ref(false);
 const selectedUser = ref<User | null>(null);
-
+const selectedVisibility = ref<boolean | undefined>(undefined);
 const data = ref<User[]>([]);
+
+const search = ref("");
+const page = ref(1);
+const itemsPerPage = ref(10);
+const selectedType = ref<rolesNames | undefined>(undefined);
 
 const roleOptions: { role: rolesNames; label: string; disabled: boolean }[] = [
   { role: "owner", label: "Creador", disabled: true },
@@ -301,9 +343,17 @@ function getRowItems(row: Row<User>) {
   ];
 }
 
-const search = ref("");
-const page = ref(1);
-const itemsPerPage = ref(10);
+const optionsForType: { label: string; value: rolesNames }[] = [
+  { label: "Creador", value: "owner" },
+  { label: "Editor", value: "editor" },
+  { label: "Aportador", value: "uploader" },
+];
+
+const paginatedItems = computed(() => {
+  const start = (page.value - 1) * itemsPerPage.value;
+  const end = start + itemsPerPage.value;
+  return filteredUsers.value.slice(start, end);
+});
 
 const handleRestoreUser = async () => {
   if (!selectedUser.value) return;
@@ -347,15 +397,28 @@ const handleToggleUserActive = async () => {
 };
 
 const loadUsers = async () => {
-  const response = await fetAllUsersAdminWithSkipAndLimit(0, 10);
+  const response = await fetchAllUsersAdmin();
   if (response.success && response.data) {
     data.value = response.data;
   }
   showToast(response);
 };
 
+const resetFilters = () => {
+  selectedType.value = undefined;
+  selectedVisibility.value = undefined;
+  search.value = "";
+};
+
 const filteredUsers = computed(() => {
   return data.value.filter((user) => {
+    if (selectedType.value !== undefined && user.role !== selectedType.value)
+      return false;
+    if (
+      selectedVisibility.value !== undefined &&
+      user.is_active !== selectedVisibility.value
+    )
+      return false;
     if (
       search.value &&
       !user.name.toLowerCase().includes(search.value.toLowerCase())
@@ -365,21 +428,6 @@ const filteredUsers = computed(() => {
     return true;
   });
 });
-
-const fetchUsers = async (skip: number, limit: number) => {
-  const response = await fetAllUsersAdminWithSkipAndLimit(skip, limit);
-
-  if (response.success && response.data) {
-    data.value = response.data;
-  }
-};
-
-watch(
-  () => itemsPerPage.value,
-  async (newValue) => {
-    fetchUsers((page.value - 1) * newValue, newValue);
-  },
-);
 
 document.title = "Usuarios - DDSC Admin";
 

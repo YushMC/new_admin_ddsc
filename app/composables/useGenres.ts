@@ -2,13 +2,6 @@ const fetchAllGenres = async () => {
   return await getFetchWithToken<GenreResponse[]>("GENRES-ADMIN", "all");
 };
 
-const fetchAllGenresWithSkipAndLimit = async (skip: number, limit: number) => {
-  return await getFetchWithToken<GenreResponse[]>(
-    "GENRES-ADMIN",
-    `all?skip=${skip}&limit=${limit}`,
-  );
-};
-
 const fetchAllGenresForSelect = async () =>
   await getFetchWithToken<GenreResponse[]>("GENRES", "");
 
@@ -26,14 +19,17 @@ const fetchUpdateStatusGenre = async (id: number, is_active: boolean) => {
   });
 };
 
+const fetchAddGenreToMod = async (modId: number, genre_ids: number[]) =>
+  await postFetchWithToken("MODS", `${modId}/genres`, { genre_ids });
+
 const useGenres = () => {
   return {
     fetchAllGenres,
     fetchSaveGenre,
     fetchUpdateGenre,
     fetchUpdateStatusGenre,
-    fetchAllGenresWithSkipAndLimit,
     fetchAllGenresForSelect,
+    fetchAddGenreToMod,
   };
 };
 

@@ -52,6 +52,14 @@
           <UButton icon="i-lucide-filter" variant="ghost">Filtros</UButton>
           <template #body>
             <div class="flex flex-col gap-4 w-full">
+              <UButton
+                @click="resetFilters"
+                color="info"
+                variant="soft"
+                class="w-fit self-end fixed top-4 right-20 z-50"
+                icon="i-lucide-rotate-ccw"
+                >Limpiar</UButton
+              >
               <UFormField label="Tipo">
                 <USelect
                   v-model="selectedType"
@@ -98,9 +106,9 @@
       <UContainer>
         <UTable
           sticky
-          :data="filteredMods"
+          :data="paginatedItems"
           :columns="columns"
-          class="flex-1 max-h-[312px]"
+          class="flex-1 max-h-[600px]"
         />
       </UContainer>
     </UCard>
@@ -119,12 +127,10 @@
 <script setup lang="ts">
 import type { BreadcrumbItem } from "@nuxt/ui";
 import type { TableColumn } from "@nuxt/ui";
-import { ro } from "@nuxt/ui/runtime/locale/index.js";
 import type { Row } from "@tanstack/vue-table";
 import useToastAlerts from "~/utils/toastAlerts";
 
-const { fetchMyModsWithSkipAndLimit, fetchModsAdminWithSkipAndLimit } =
-  useMods();
+const { fetchMyMods, fetchModsAdmin } = useMods();
 const { decodeToken } = useAuth();
 const { showToast } = useToastAlerts();
 const { fetchCreateStats } = useStats();
@@ -176,6 +182,12 @@ const selectedVisibility = ref<boolean | undefined>(undefined);
 const search = ref("");
 const page = ref(1);
 const itemsPerPage = ref(10);
+
+const paginatedItems = computed(() => {
+  const start = (page.value - 1) * itemsPerPage.value;
+  const end = start + itemsPerPage.value;
+  return filteredMods.value.slice(start, end);
+});
 
 const token = ref<tokenData | null>(null);
 
@@ -313,8 +325,7 @@ function getRowItems(row: Row<ModResponse>) {
 
   if (
     !row.original.resource.images.some((item) => item.type === "logo") ||
-    !row.original.resource.images.some((item) => item.type === "main") ||
-    !row.original.resource.images.some((item) => item.type === "screenshot")
+    !row.original.resource.images.some((item) => item.type === "main")
   ) {
     itemsData.push({
       label: "Agregar Imagenes",
@@ -328,6 +339,14 @@ function getRowItems(row: Row<ModResponse>) {
       label: "Agregar Créditos",
       onSelect() {
         router.push(`/mods/create/credits/${row.original.resource.id}`);
+      },
+    });
+  }
+  if (row.original.credits.creators.length === 0) {
+    itemsData.push({
+      label: "Agregar Géneros",
+      onSelect() {
+        router.push(`/mods/create/genres/${row.original.resource.id}`);
       },
     });
   }
@@ -380,23 +399,13 @@ const create = async (id: number) => {
   showToast(response);
 };
 
-const fetchModsWithSkipAndLimit = async (skip: number, limit: number) => {
-  const response =
-    token.value?.role === "uploader"
-      ? await fetchMyModsWithSkipAndLimit(skip, limit)
-      : await fetchModsAdminWithSkipAndLimit(skip, limit);
-
-  if (response.success && response.data) {
-    mods.value = response.data;
-  }
+const resetFilters = () => {
+  selectedType.value = undefined;
+  selectedStatus.value = undefined;
+  selectedDuration.value = undefined;
+  selectedVisibility.value = undefined;
+  search.value = "";
 };
-
-watch(
-  () => itemsPerPage.value,
-  async (newValue) => {
-    fetchModsWithSkipAndLimit((page.value - 1) * newValue, newValue);
-  },
-);
 
 document.title = "Mods - Admin DDSC";
 
@@ -405,8 +414,8 @@ onBeforeMount(async () => {
 
   const response =
     token.value?.role === "uploader"
-      ? await fetchMyModsWithSkipAndLimit(0, 10)
-      : await fetchModsAdminWithSkipAndLimit(0, 10);
+      ? await fetchMyMods()
+      : await fetchModsAdmin();
 
   showToast(response);
 

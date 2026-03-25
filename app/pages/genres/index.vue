@@ -46,7 +46,12 @@
         </UFormField>
       </UContainer>
       <UContainer>
-        <UTable :data="filteredGenres" :columns="columns" class="flex-1" />
+        <UTable
+          :data="paginatedItems"
+          :columns="columns"
+          class="flex-1 max-h-[600px]"
+          sticky
+        />
       </UContainer>
     </UCard>
 
@@ -124,7 +129,7 @@ import useToastAlerts from "~/utils/toastAlerts";
 const { showToast } = useToastAlerts();
 const { decodeToken } = useAuth();
 const {
-  fetchAllGenresWithSkipAndLimit,
+  fetchAllGenres,
   fetchSaveGenre,
   fetchUpdateGenre,
   fetchUpdateStatusGenre,
@@ -228,6 +233,12 @@ function getRowItems(row: Row<GenreResponse>) {
   ];
 }
 
+const paginatedItems = computed(() => {
+  const start = (page.value - 1) * itemsPerPage.value;
+  const end = start + itemsPerPage.value;
+  return filteredGenres.value.slice(start, end);
+});
+
 const handleSaveGenre = async () => {
   const response = await fetchSaveGenre(genre.value);
   showToast(response);
@@ -276,19 +287,6 @@ const filteredGenres = computed(() => {
   });
 });
 
-watch(
-  () => itemsPerPage.value,
-  async () => {
-    const statsResp = await fetchAllGenresWithSkipAndLimit(
-      (page.value - 1) * itemsPerPage.value,
-      itemsPerPage.value,
-    );
-    if (statsResp && statsResp.data) {
-      data.value = statsResp.data;
-    }
-  },
-);
-
 document.title = "Géneros - DDSC Admin";
 
 onBeforeMount(async () => {
@@ -296,7 +294,7 @@ onBeforeMount(async () => {
   if (userData.value?.role === "uploader") {
     router.push("/");
   }
-  const genresResponse = await fetchAllGenresWithSkipAndLimit(0, 10);
+  const genresResponse = await fetchAllGenres();
   showToast(genresResponse);
   if (genresResponse.success && genresResponse.data) {
     data.value = genresResponse.data;
