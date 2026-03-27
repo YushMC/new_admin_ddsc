@@ -292,20 +292,19 @@ const handleUploadScreenshots = async () => {
   try {
     uploaderScreenshotsState.value = true;
 
-    for (const file of uploadScreenshots.value) {
-      const response = await saveArrayImagesToBD(
-        "IMAGES",
-        `screenshots/all/${modId.value}`,
-        "POST",
-        [file],
-      );
+    const response = await saveArrayImagesToBD(
+      "IMAGES",
+      `screenshots/all/${modId.value}`,
+      "POST",
+      uploadScreenshots.value,
+    );
 
-      if (!response.success) {
-        showToast(response);
-      } else {
-        showToast(response);
-      }
+    if (!response.success) {
+      showToast(response);
+    } else {
+      showToast(response);
     }
+
     status.value.showCapturesInputs = false;
   } catch (error) {
     showToast({
