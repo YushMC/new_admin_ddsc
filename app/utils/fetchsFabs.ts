@@ -84,7 +84,10 @@ export const fetchWithToken = async <T = any>(
     if (endPoint && endPoint.trim() !== "") {
       selectedEndPoint = `${selectedEndPoint}/${endPoint}`;
     }
-    const token = typeof window !== "undefined" ? (localStorage.getItem("auth_token") ?? "") : "";
+    const token =
+      typeof window !== "undefined"
+        ? (localStorage.getItem("auth_token") ?? "")
+        : "";
     const response = await $fetch<responseDataFromFetch<T>>(selectedEndPoint, {
       method: methhodFetch,
       headers: {
@@ -191,9 +194,62 @@ export const saveImagesToBD = async <T = any>(
   }
 
   try {
-    const token = typeof window !== "undefined" ? (localStorage.getItem("auth_token") ?? "") : "";
+    const token =
+      typeof window !== "undefined"
+        ? (localStorage.getItem("auth_token") ?? "")
+        : "";
     const formData = new FormData();
     formData.append("file", file);
+
+    const response = await $fetch<T>(selectedEndPoint, {
+      method: methhodFetch,
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+      body: formData,
+    });
+
+    if (!response) {
+      return {
+        success: false,
+        message: "correcto",
+      };
+    }
+
+    return {
+      success: true,
+      message: "correcto",
+      data: response,
+    };
+  } catch (error) {
+    return {
+      success: false,
+      message: String(error),
+    };
+  }
+};
+
+export const saveArrayImagesToBD = async <T = any>(
+  prefix: prefixAlloweds,
+  endPoint: string,
+  methhodFetch: methodsAlloweds,
+  files: File[],
+): Promise<{ data?: T; success: boolean; message: string }> => {
+  let selectedEndPoint = setBaseUrl(prefix);
+
+  if (endPoint && endPoint.trim() !== "") {
+    selectedEndPoint = `${selectedEndPoint}/${endPoint}`;
+  }
+
+  try {
+    const token =
+      typeof window !== "undefined"
+        ? (localStorage.getItem("auth_token") ?? "")
+        : "";
+    const formData = new FormData();
+    files.forEach((file) => {
+      formData.append("file", file);
+    });
 
     const response = await $fetch<T>(selectedEndPoint, {
       method: methhodFetch,

@@ -37,6 +37,7 @@
             @click="addCredit"
             variant="soft"
             color="info"
+            class="mb-5"
           >
             Agregar nuevo crédito
           </UButton>
@@ -98,8 +99,7 @@
         </UCard>
 
         <USeparator class="my-5" />
-        <div class="w-full flex justify-start gap-5">
-          <!-- Agregar nuevo -->
+        <div class="w-full flex justify-start gap-5" v-if="hasValidCreators">
           <UButton
             type="submit"
             icon="i-lucide-save"
@@ -227,6 +227,14 @@ onBeforeMount(async () => {
     router.back();
   }
   await getUsers();
+});
+
+const hasValidCreators = computed(() => {
+  return credits.value.some(
+    (c) =>
+      c.type === "original_creator" &&
+      (c.id_user !== null || c.name !== undefined),
+  );
 });
 </script>
 
