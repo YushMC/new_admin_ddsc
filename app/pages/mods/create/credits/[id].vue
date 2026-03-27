@@ -51,10 +51,15 @@
               <h3 class="mb-5">Crédito #{{ index + 1 }}</h3>
               <!-- Select usuarios -->
               <UFormField label="Usuario existente">
-                <USelect
-                  :model-value="credit.id_user ?? 0"
-                  @update:model-value="(val) => (credit.id_user = val || null)"
+                <USelectMenu
+                  :model-value="
+                    typeUserOptions.find((opt) => opt.value === credit.id_user)
+                  "
+                  @update:model-value="
+                    (val) => (credit.id_user = val?.value || null)
+                  "
                   :items="typeUserOptions"
+                  option-attribute="label"
                   value-attribute="value"
                   placeholder="Selecciona un usuario"
                   class="w-full"
@@ -64,9 +69,9 @@
               <!-- Input manual -->
               <UFormField label="Nombre manual">
                 <UInput
-                  :model-value="credit.name ?? ''"
+                  :model-value="credit.name?.trim() ?? ''"
                   @update:model-value="
-                    (val) => (credit.name = val || undefined)
+                    (val) => (credit.name = val?.trim() || undefined)
                   "
                   type="text"
                   placeholder="Nombre personalizado"
