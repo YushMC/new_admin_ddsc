@@ -89,11 +89,9 @@
                 description="SVG, PNG, JPG o WEBP (max. 2MB)"
               />
               <UButton
+                v-if="uploadScreenshots.length > 0"
                 @click="handleUploadScreenshots"
                 :loading="uploaderScreenshotsState"
-                :disabled="
-                  uploaderScreenshotsState || uploadScreenshots.length === 0
-                "
                 size="md"
                 icon="i-lucide-upload"
                 color="info"
@@ -116,15 +114,6 @@
               :disabled="uploadingLogo || uploadingMain"
             >
               Cancelar
-            </UButton>
-            <UButton
-              type="button"
-              size="lg"
-              color="warning"
-              variant="soft"
-              @click="handleSkip"
-            >
-              Omitir
             </UButton>
 
             <UButton
